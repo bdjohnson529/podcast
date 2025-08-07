@@ -3,6 +3,31 @@ import { elevenLabsService, DEFAULT_VOICES } from '@/lib/elevenlabs';
 import { supabase } from '@/lib/supabase';
 import { storeAudioBuffer, getAudioBuffer } from '@/lib/audio-cache';
 
+// Simple function to combine multiple audio segments
+// Note: This is a basic concatenation. For production, you'd want proper audio mixing
+function combineAudioSegments(audioSegments: ArrayBuffer[]): ArrayBuffer {
+  console.log('🔗 Starting audio segment combination...');
+  
+  // Calculate total size
+  const totalSize = audioSegments.reduce((sum, buffer) => sum + buffer.byteLength, 0);
+  console.log(`📊 Total combined size will be: ${totalSize} bytes`);
+  
+  // Create a new buffer to hold all segments
+  const combinedBuffer = new ArrayBuffer(totalSize);
+  const combinedArray = new Uint8Array(combinedBuffer);
+  
+  let offset = 0;
+  audioSegments.forEach((segment, index) => {
+    const segmentArray = new Uint8Array(segment);
+    combinedArray.set(segmentArray, offset);
+    console.log(`🔗 Added segment ${index + 1}/${audioSegments.length} at offset ${offset}, size: ${segment.byteLength}`);
+    offset += segment.byteLength;
+  });
+  
+  console.log('✅ Audio segments combined successfully');
+  return combinedBuffer;
+}
+
 export async function POST(request: NextRequest) {
   console.log('🎵 Audio generation request started');
   
@@ -67,19 +92,25 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Audio segments generated:', audioSegments.length);
 
-    // Save the first audio segment for demo playback
-    // In production, you would combine all segments into one file
-    const firstAudioSegment = audioSegments[0];
+    // Combine all audio segments into one complete audio file
+    console.log('🔗 Combining audio segments...');
+    const combinedAudio = combineAudioSegments(audioSegments);
+    console.log('✅ Audio segments combined:', {
+      totalSegments: audioSegments.length,
+      combinedSize: combinedAudio.byteLength,
+      originalTotalSize: audioSegments.reduce((sum, buffer) => sum + buffer.byteLength, 0)
+    });
     
-    // Store the audio buffer in our cache
-    storeAudioBuffer(scriptId, firstAudioSegment);
+    // Store the combined audio buffer in our cache
+    storeAudioBuffer(scriptId, combinedAudio);
     
     // Immediately test if we can retrieve it (debugging)
     console.log('🧪 Testing immediate cache retrieval...');
     const testRetrieve = getAudioBuffer(scriptId);
     console.log('🧪 Immediate retrieval result:', {
       success: !!testRetrieve,
-      size: testRetrieve?.byteLength || 0
+      size: testRetrieve?.byteLength || 0,
+      expectedSize: combinedAudio.byteLength
     });
     
     // Create a temporary audio URL that will serve the first segment
