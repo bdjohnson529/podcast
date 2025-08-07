@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { elevenLabsService, DEFAULT_VOICES } from '@/lib/elevenlabs';
 import { supabase } from '@/lib/supabase';
+import { storeAudioBuffer, getAudioBuffer } from '@/lib/audio-cache';
 
 export async function POST(request: NextRequest) {
   console.log('🎵 Audio generation request started');
@@ -66,12 +67,22 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Audio segments generated:', audioSegments.length);
 
-    // In a real implementation, you would:
-    // 1. Combine the audio segments into a single file
-    // 2. Upload to storage (Supabase Storage, AWS S3, etc.)
-    // 3. Return the public URL
+    // Save the first audio segment for demo playback
+    // In production, you would combine all segments into one file
+    const firstAudioSegment = audioSegments[0];
     
-    // For now, we'll simulate this with a mock response
+    // Store the audio buffer in our cache
+    storeAudioBuffer(scriptId, firstAudioSegment);
+    
+    // Immediately test if we can retrieve it (debugging)
+    console.log('🧪 Testing immediate cache retrieval...');
+    const testRetrieve = getAudioBuffer(scriptId);
+    console.log('🧪 Immediate retrieval result:', {
+      success: !!testRetrieve,
+      size: testRetrieve?.byteLength || 0
+    });
+    
+    // Create a temporary audio URL that will serve the first segment
     const mockAudioUrl = `/api/audio/${scriptId}`;
     const mockDuration = script.estimatedDuration * 60; // Convert to seconds
 
@@ -144,14 +155,4 @@ export async function POST(request: NextRequest) {
       { status: statusCode }
     );
   }
-}
-
-// Mock audio streaming endpoint
-export async function GET(request: NextRequest) {
-  const url = new URL(request.url);
-  const scriptId = url.pathname.split('/').pop();
-
-  // In a real implementation, this would stream the actual audio file
-  // For demo purposes, we'll return a redirect to a sample audio file
-  return NextResponse.redirect('https://www.soundjay.com/misc/sounds/bell-ringing-05.wav');
 }

@@ -22,7 +22,13 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [audioError, setAudioError] = useState<string | null>(null);
+  const [useDemo, setUseDemo] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Demo audio URL for testing purposes
+  const demoAudioUrl = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
+  const audioUrl = useDemo ? demoAudioUrl : audio.audioUrl;
 
   useEffect(() => {
     const audioElement = audioRef.current;
@@ -31,15 +37,33 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
     const updateTime = () => setCurrentTime(audioElement.currentTime);
     const updateDuration = () => setDuration(audioElement.duration || 0);
     const handleEnded = () => setIsPlaying(false);
+    const handleError = (e: Event) => {
+      console.error('🔴 Audio error:', e);
+      const target = e.target as HTMLAudioElement;
+      setAudioError(`Audio failed to load: ${target.error?.message || 'Unknown error'}`);
+    };
+    const handleLoadStart = () => {
+      console.log('🎵 Audio load started for URL:', audioElement.src);
+      setAudioError(null);
+    };
+    const handleCanPlay = () => {
+      console.log('✅ Audio can play');
+    };
 
     audioElement.addEventListener('timeupdate', updateTime);
     audioElement.addEventListener('loadedmetadata', updateDuration);
     audioElement.addEventListener('ended', handleEnded);
+    audioElement.addEventListener('error', handleError);
+    audioElement.addEventListener('loadstart', handleLoadStart);
+    audioElement.addEventListener('canplay', handleCanPlay);
 
     return () => {
       audioElement.removeEventListener('timeupdate', updateTime);
       audioElement.removeEventListener('loadedmetadata', updateDuration);
       audioElement.removeEventListener('ended', handleEnded);
+      audioElement.removeEventListener('error', handleError);
+      audioElement.removeEventListener('loadstart', handleLoadStart);
+      audioElement.removeEventListener('canplay', handleCanPlay);
     };
   }, []);
 
@@ -52,10 +76,15 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
   const togglePlayPause = () => {
     if (!audioRef.current) return;
 
+    console.log('🎛️ Toggle play/pause, current state:', { isPlaying, audioUrl });
+
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play();
+      audioRef.current.play().catch(error => {
+        console.error('❌ Play failed:', error);
+        setAudioError(`Playback failed: ${error.message}`);
+      });
     }
     setIsPlaying(!isPlaying);
   };
@@ -74,14 +103,41 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleDownloadAudio = () => {
-    if (audio.audioUrl) {
-      const link = document.createElement('a');
-      link.href = audio.audioUrl;
-      link.download = `${script.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.mp3`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  const handleDownloadAudio = async () => {
+    if (audioUrl) {
+      try {
+        console.log('📥 Starting audio download from:', audioUrl);
+        
+        // Fetch the audio data
+        const response = await fetch(audioUrl);
+        
+        if (!response.ok) {
+          throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+        }
+        
+        // Get the audio data as a blob
+        const blob = await response.blob();
+        console.log('✅ Audio blob received, size:', blob.size);
+        
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${script.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.mp3`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        console.log('✅ Audio download completed');
+      } catch (error) {
+        console.error('❌ Audio download failed:', error);
+        setAudioError(`Download failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    } else {
+      console.error('❌ No audio URL available for download');
+      setAudioError('No audio URL available for download');
     }
   };
 
@@ -123,9 +179,40 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
 
         {/* Audio Player */}
         <div className="bg-gray-50 rounded-lg p-6">
+          {/* Demo Toggle */}
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="text-sm text-gray-600">Audio Source:</span>
+              <button
+                onClick={() => setUseDemo(!useDemo)}
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                  useDemo 
+                    ? 'bg-blue-100 text-blue-800 border border-blue-300' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {useDemo ? '🔊 Demo Audio' : '🎙️ Generated Audio'}
+              </button>
+            </div>
+            <div className="text-xs text-gray-500">
+              Current: {useDemo ? 'Demo URL' : (audio.audioUrl ? 'Generated' : 'None')}
+            </div>
+          </div>
+
+          {audioError && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              <p className="text-sm">
+                <strong>Audio Error:</strong> {audioError}
+              </p>
+              <p className="text-xs mt-1">
+                Audio URL: {audioUrl}
+              </p>
+            </div>
+          )}
+          
           <audio
             ref={audioRef}
-            src={audio.audioUrl}
+            src={audioUrl}
             preload="metadata"
             className="hidden"
           />
