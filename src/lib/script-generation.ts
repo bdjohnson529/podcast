@@ -141,14 +141,35 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
       console.log('🔄 Parsing JSON response...');
       console.log('📄 Raw content preview:', content.substring(0, 500) + '...');
 
+      // Clean the content by removing markdown code blocks if present
+      let cleanContent = content.trim();
+      
+      // Remove markdown code blocks (```json ... ``` or ``` ... ```)
+      if (cleanContent.startsWith('```')) {
+        // Find the first newline after opening ```
+        const firstNewlineIndex = cleanContent.indexOf('\n');
+        if (firstNewlineIndex !== -1) {
+          // Remove the opening ``` and language identifier
+          cleanContent = cleanContent.substring(firstNewlineIndex + 1);
+        }
+        
+        // Remove closing ```
+        if (cleanContent.endsWith('```')) {
+          cleanContent = cleanContent.substring(0, cleanContent.lastIndexOf('```')).trim();
+        }
+      }
+
+      console.log('🧹 Cleaned content preview:', cleanContent.substring(0, 500) + '...');
+
       // Parse the JSON response
       let parsedScript;
       try {
-        parsedScript = JSON.parse(content);
+        parsedScript = JSON.parse(cleanContent);
         console.log('✅ JSON parsing successful');
       } catch (parseError) {
         console.error('❌ JSON parsing failed:', parseError);
-        console.error('📄 Content that failed to parse:', content);
+        console.error('📄 Original content that failed to parse:', content);
+        console.error('📄 Cleaned content that failed to parse:', cleanContent);
         throw new Error(`Failed to parse OpenAI response as JSON: ${parseError instanceof Error ? parseError.message : 'Unknown parse error'}`);
       }
       

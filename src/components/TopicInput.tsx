@@ -20,22 +20,24 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
   const [isIndustryDropdownOpen, setIsIndustryDropdownOpen] = useState(false);
 
   const handleIndustryToggle = (industry: Industry) => {
-    const isSelected = currentInput.industries.some(i => i.id === industry.id);
+    const industries = currentInput.industries || [];
+    const isSelected = industries.some(i => i.id === industry.id);
     
     if (isSelected) {
       setCurrentInput({
-        industries: currentInput.industries.filter(i => i.id !== industry.id),
+        industries: industries.filter(i => i.id !== industry.id),
       });
     } else {
       setCurrentInput({
-        industries: [...currentInput.industries, industry],
+        industries: [...industries, industry],
       });
     }
   };
 
   const removeIndustry = (industryId: string) => {
+    const industries = currentInput.industries || [];
     setCurrentInput({
-      industries: currentInput.industries.filter(i => i.id !== industryId),
+      industries: industries.filter(i => i.id !== industryId),
     });
   };
 
@@ -108,9 +110,9 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
           </label>
           
           {/* Selected Industries */}
-          {currentInput.industries.length > 0 && (
+          {(currentInput.industries?.length || 0) > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
-              {currentInput.industries.map((industry) => (
+              {(currentInput.industries || []).map((industry) => (
                 <span
                   key={industry.id}
                   className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-100 text-primary-800"

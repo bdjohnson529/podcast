@@ -235,13 +235,13 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
         </div>
         <div className="card text-center">
           <div className="text-2xl font-bold text-green-600">
-            {script.transcript.length}
+            {script.transcript?.length || 0}
           </div>
           <div className="text-sm text-gray-600">Dialogue Segments</div>
         </div>
         <div className="card text-center">
           <div className="text-2xl font-bold text-purple-600">
-            {script.monetizationModels.length}
+            {script.monetizationModels?.length || 0}
           </div>
           <div className="text-sm text-gray-600">Monetization Models</div>
         </div>

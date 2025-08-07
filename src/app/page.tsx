@@ -99,27 +99,69 @@ export default function HomePage() {
       return;
     }
 
+    console.log('🎵 Starting audio generation process');
+    console.log('📝 Script data:', {
+      id: currentScript.id,
+      title: currentScript.title,
+      hasTranscript: !!currentScript.transcript,
+      transcriptLength: currentScript.transcript?.length
+    });
+
     setIsGeneratingAudio(true);
     setCurrentAudio(null);
 
     try {
+      console.log('🌐 Making API request to /api/generate-audio');
       const response = await fetch('/api/generate-audio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scriptId: currentScript.id }),
+        body: JSON.stringify({ 
+          scriptId: currentScript.id,
+          scriptData: currentScript // Include full script data as fallback
+        }),
       });
 
+      console.log('📡 API response status:', response.status);
+      console.log('📡 API response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error('Failed to generate audio');
+        const errorData = await response.text();
+        console.error('❌ API error response:', errorData);
+        
+        let errorMessage = 'Failed to generate audio';
+        try {
+          const parsedError = JSON.parse(errorData);
+          errorMessage = parsedError.error || parsedError.details || errorMessage;
+        } catch {
+          // If it's not JSON, use the raw text
+          errorMessage = errorData || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
       }
 
+      console.log('📄 Parsing response JSON...');
       const audio = await response.json();
+      console.log('✅ Audio received:', {
+        id: audio.id,
+        status: audio.status,
+        duration: audio.duration
+      });
+
       setCurrentAudio(audio);
       setCurrentStep('audio');
       toast.success('Audio generated successfully!');
+      console.log('🎉 Audio generation completed successfully');
     } catch (error) {
-      console.error('Error generating audio:', error);
-      toast.error('Failed to generate audio. Please try again.');
+      console.error('💥 Audio generation error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        type: typeof error,
+        error: error
+      });
+      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate audio. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setIsGeneratingAudio(false);
     }

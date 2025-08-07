@@ -16,7 +16,10 @@ export function SavedEpisodes() {
     removeSavedEpisode(episodeId);
   };
 
-  if (savedEpisodes.length === 0) {
+  // Ensure savedEpisodes is an array
+  const episodes = savedEpisodes || [];
+
+  if (episodes.length === 0) {
     return (
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -42,12 +45,12 @@ export function SavedEpisodes() {
           Recent Episodes
         </h3>
         <span className="text-sm text-gray-500">
-          Last {savedEpisodes.length}
+          Last {episodes.length}
         </span>
       </div>
 
       <div className="space-y-3">
-        {savedEpisodes.map((episode) => (
+        {episodes.map((episode) => (
           <div
             key={episode.id}
             onClick={() => handleLoadEpisode(episode)}
@@ -89,9 +92,9 @@ export function SavedEpisodes() {
               </button>
             </div>
 
-            {episode.input.industries.length > 0 && (
+            {(episode.input.industries?.length || 0) > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
-                {episode.input.industries.slice(0, 3).map((industry) => (
+                {(episode.input.industries || []).slice(0, 3).map((industry) => (
                   <span
                     key={industry.id}
                     className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
@@ -99,9 +102,9 @@ export function SavedEpisodes() {
                     {industry.name}
                   </span>
                 ))}
-                {episode.input.industries.length > 3 && (
+                {(episode.input.industries?.length || 0) > 3 && (
                   <span className="text-xs text-gray-400">
-                    +{episode.input.industries.length - 3} more
+                    +{(episode.input.industries?.length || 0) - 3} more
                   </span>
                 )}
               </div>

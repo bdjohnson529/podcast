@@ -57,8 +57,10 @@ export async function POST(request: NextRequest) {
 
     // Save to Supabase
     console.log('💾 Attempting to save to database...');
+    let savedEpisodeId = script.id; // Default to script's generated ID
+    
     try {
-      const { error: dbError } = await supabase
+      const { data: insertedData, error: dbError } = await supabase
         .from('episodes')
         .insert({
           topic: input.topic,
@@ -66,13 +68,19 @@ export async function POST(request: NextRequest) {
           industries: input.industries.map(i => i.name),
           use_case: input.useCase || null,
           script: script,
-        });
+        })
+        .select('id')
+        .single();
 
       if (dbError) {
         console.warn('⚠️ Database save failed:', dbError);
+        console.warn('⚠️ Will continue without database save');
         // Continue anyway - script generation succeeded
       } else {
-        console.log('✅ Successfully saved to database');
+        console.log('✅ Successfully saved to database with ID:', insertedData?.id);
+        savedEpisodeId = insertedData?.id || script.id;
+        // Update the script object with the database ID
+        script.id = savedEpisodeId;
       }
     } catch (dbError) {
       console.warn('⚠️ Database operation failed:', dbError);
