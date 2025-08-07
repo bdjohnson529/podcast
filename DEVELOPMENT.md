@@ -1,8 +1,8 @@
-# CommercializeCast - Development Guide
+# AudioCourse AI - Development Guide
 
 ## 🎯 Project Overview
 
-CommercializeCast is a production-ready web application that generates personalized 8-12 minute podcasts exploring the commercialization opportunities of AI technologies. Users input an AI topic, specify their familiarity level, and optionally target specific industries to receive a structured, realistic analysis delivered via high-quality text-to-speech.
+AudioCourse AI is a production-ready web application that generates personalized 8-12 minute podcasts on any learning topic. Users input any subject they want to learn about, specify their familiarity level, and optionally target specific areas to receive a structured, educational analysis delivered via high-quality text-to-speech.
 
 ## 🏗️ Architecture
 
@@ -279,4 +279,4 @@ npm install --save-dev @testing-library/jest-dom
 
 ---
 
-**Built with ❤️ for exploring AI commercialization opportunities**
+**Built with ❤️ for AI-powered learning experiences**

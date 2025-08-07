@@ -1,4 +1,4 @@
--- CommercializeCast Database Schema
+-- AudioCourse AI Database Schema
 -- Run this in your Supabase SQL editor
 
 -- Episodes table to store podcast episodes

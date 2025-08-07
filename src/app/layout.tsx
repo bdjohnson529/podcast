@@ -6,13 +6,13 @@ import { Toaster } from 'react-hot-toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'CommercializeCast - AI Commercialization Podcasts',
-  description: 'Generate and listen to short podcasts on commercialization opportunities for new AI topics.',
-  keywords: ['AI', 'commercialization', 'podcast', 'business', 'technology'],
-  authors: [{ name: 'CommercializeCast Team' }],
+  title: 'AudioCourse AI - AI-Powered Learning Podcasts',
+  description: 'Generate and listen to personalized AI-powered podcasts on any topic to accelerate your learning.',
+  keywords: ['AI', 'learning', 'podcast', 'education', 'technology', 'courses'],
+  authors: [{ name: 'AudioCourse AI Team' }],
   openGraph: {
-    title: 'CommercializeCast',
-    description: 'AI Commercialization Podcasts',
+    title: 'AudioCourse AI',
+    description: 'AI-Powered Learning Podcasts',
     type: 'website',
   },
 };
@@ -31,14 +31,14 @@ export default function RootLayout({
               <div className="flex justify-between items-center py-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">CC</span>
+                    <span className="text-white font-bold text-sm">AC</span>
                   </div>
                   <h1 className="text-xl font-bold text-gray-900">
-                    CommercializeCast
+                    AudioCourse AI
                   </h1>
                 </div>
                 <div className="text-sm text-gray-600">
-                  AI Commercialization Podcasts
+                  AI-Powered Learning Podcasts
                 </div>
               </div>
             </div>
@@ -51,7 +51,7 @@ export default function RootLayout({
           <footer className="bg-white/50 border-t border-gray-200 mt-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="text-center text-sm text-gray-600">
-                <p>© 2025 CommercializeCast. Built for exploring AI commercialization opportunities.</p>
+                <p>© 2025 AudioCourse AI. Built for AI-powered learning experiences.</p>
                 <p className="mt-2">
                   Powered by{' '}
                   <span className="font-medium">OpenAI</span>,{' '}

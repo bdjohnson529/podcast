@@ -1,27 +1,28 @@
-# CommercializeCast
+# AudioCourse AI
 
-> Generate and listen to short podcasts on commercialization opportunities for new AI topics.
+> Generate and listen to personalized AI-powered podcasts on any topic to accelerate your learning.
 
-A production-ready web application that creates personalized 8-12 minute podcasts exploring the business potential of AI technologies. Built with Next.js, ElevenLabs, and Supabase.
+A production-ready web application that creates personalized 8-12 minute educational podcasts on any topic. Built with Next.js, ElevenLabs, and Supabase.
 
 ## ✨ Features
 
 ### Core Functionality
-- **AI Topic Input**: Enter any AI technology, model, or capability
+- **Any Topic Input**: Enter any subject you want to learn about - tech, science, history, arts, etc.
 - **Personalized Content**: Tailor to your familiarity level (New/Some/Expert)
-- **Industry Focus**: Optional targeting for Finance, Healthcare, Retail, etc.
-- **Smart Script Generation**: Uses OpenAI GPT-4 to create structured, realistic content
+- **Context Focus**: Optional targeting for specific areas or applications
+- **Smart Script Generation**: Uses OpenAI GPT-4 to create structured, educational content
 - **High-Quality TTS**: ElevenLabs voices for natural-sounding audio
 - **Download & Share**: Export MP3 audio and text transcripts
 
 ### Content Structure
 Each podcast includes:
 - **Overview**: 60-90 second intro tailored to familiarity level
-- **Monetization Models**: 3-5 different approaches with GTM strategies
-- **Moats & Risks**: Technical, regulatory, data, and distribution challenges
-- **Build vs Buy**: Guidance with timelines and resource requirements
-- **30-Day Action Plan**: Concrete next steps
-- **Glossary**: Key terms (for non-experts)
+- **Key Concepts**: 3-5 fundamental ideas with clear explanations
+- **Applications & Examples**: Real-world uses and case studies
+- **Challenges & Considerations**: Limitations, debates, and complexities
+- **Learning Path**: Next steps and recommended resources
+- **Summary & Takeaways**: Key points to remember
+- **Glossary**: Important terms (for non-experts)
 - **Sources**: Research links and references
 
 ### User Experience
@@ -130,10 +131,10 @@ src/
 ## 🎯 Content Guidelines
 
 ### Safety & Ethics
-- **No medical advice**: Focuses on commercialization, not health claims
-- **No financial advice**: Discusses business models, not investment advice
-- **Realistic framing**: Acknowledges limitations and risks honestly
-- **Industry focus**: Targets B2B applications primarily
+- **No medical advice**: Focuses on educational content, not health claims
+- **No financial advice**: Discusses concepts, not investment advice
+- **Realistic framing**: Acknowledges limitations and uncertainties honestly
+- **Educational focus**: Targets learning and understanding primarily
 
 ### Content Quality
 - **Balanced perspective**: Covers both opportunities and challenges
@@ -248,4 +249,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-**Built for exploring AI commercialization opportunities** 🚀
+**Built for AI-powered learning experiences** 🚀

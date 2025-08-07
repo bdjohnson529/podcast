@@ -1,4 +1,4 @@
-// Core types for CommercializeCast
+// Core types for AudioCourse AI
 export interface PodcastInput {
   topic: string;
   familiarity: 'new' | 'some' | 'expert';
@@ -15,10 +15,11 @@ export interface PodcastScript {
   id: string;
   title: string;
   overview: string;
-  monetizationModels: MonetizationModel[];
-  moatAndRisks: MoatAndRisks;
-  buildVsBuy: BuildVsBuy;
-  firstThirtyDayPlan: string[];
+  keyConcepts: KeyConcept[];
+  applicationsAndExamples: ApplicationsAndExamples;
+  challengesAndConsiderations: ChallengesAndConsiderations;
+  learningPath: LearningPath;
+  summaryAndTakeaways: string[];
   glossary?: GlossaryTerm[];
   sources: Source[];
   transcript: DialogueLine[];
@@ -26,28 +27,31 @@ export interface PodcastScript {
   createdAt: string;
 }
 
-export interface MonetizationModel {
+export interface KeyConcept {
   name: string;
   description: string;
-  gtmNotes: string[];
-  revenueModel: string;
-  targetCustomers: string[];
+  importance: string;
+  examples: string[];
 }
 
-export interface MoatAndRisks {
-  technicalRisks: string[];
-  regulatoryRisks: string[];
-  dataRisks: string[];
-  distributionRisks: string[];
-  competitiveMoats: string[];
+export interface ApplicationsAndExamples {
+  realWorldUses: string[];
+  caseStudies: string[];
+  practicalApplications: string[];
 }
 
-export interface BuildVsBuy {
-  buildRecommendation: 'build' | 'buy' | 'hybrid';
-  reasoning: string;
-  keyConsiderations: string[];
-  timeline: string;
-  resourceRequirements: string[];
+export interface ChallengesAndConsiderations {
+  limitations: string[];
+  debates: string[];
+  complexities: string[];
+  ethicalConsiderations: string[];
+}
+
+export interface LearningPath {
+  nextSteps: string[];
+  recommendedResources: string[];
+  skillsToDeepDive: string[];
+  timeToMastery: string;
 }
 
 export interface GlossaryTerm {

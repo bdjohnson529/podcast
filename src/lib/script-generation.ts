@@ -15,63 +15,101 @@ class ScriptGenerationService {
   }
 
   private getSystemPrompt(familiarity: string): string {
-    return `You are a podcast script writer for "CommercializeCast" - a show focused on practical commercialization opportunities for AI technologies. Your job is to create engaging, informative dialogue between two hosts: CHRIS (analytical, technical) and JESSICA (business-focused, strategic).
+    return `You are a podcast script writer for "AudioCourse AI" - a show focused on educational content and learning acceleration through AI-generated conversations. Your job is to create engaging, informative dialogue between two hosts: CHRIS (analytical, detail-oriented) and JESSICA (practical, strategic thinker).
 
 STYLE GUIDELINES:
 - Natural conversation flow with interruptions and reactions
-- Balance technical depth with business practicality
-- No hype or overselling - focus on realistic opportunities and challenges
-- Include specific examples and real-world applications
-- ${familiarity === 'expert' ? 'Use technical terminology freely' : familiarity === 'some' ? 'Explain technical terms briefly' : 'Define all technical concepts clearly'}
+- Balance depth with accessibility based on the audience's familiarity level
+- Focus on practical understanding and real-world applications
+- Include specific examples and concrete takeaways
+- ${familiarity === 'expert' ? 'Use domain-specific terminology freely' : familiarity === 'some' ? 'Explain key terms briefly' : 'Define all important concepts clearly'}
 
 SAFETY RULES:
 - NO medical diagnosis, treatment, or financial investment advice
-- Frame everything as "commercialization opportunities" not "solutions"
-- Acknowledge limitations and risks honestly
-- Focus on business applications, not personal use
+- Present information objectively and acknowledge different perspectives
+- Acknowledge limitations and areas of uncertainty honestly
+- Focus on educational value and practical understanding
 
 TARGET DURATION: 8-12 minutes (roughly 1,200-1,800 words)
 
 REQUIRED STRUCTURE:
-1. Overview (60-90 seconds): What this technology is and why it matters commercially
-2. Monetization Models (3-5 different approaches with GTM strategies)
-3. Moats & Risks (technical, regulatory, data, distribution challenges)
-4. Build vs Buy guidance with timeline
-5. 30-day action plan for getting started
-6. Sources list with real URLs when possible
+1. Overview (60-90 seconds): What this topic is and why it's important to understand
+2. Key Concepts (3-5 fundamental ideas with explanations)
+3. Applications & Examples (real-world uses and case studies)
+4. Challenges & Considerations (limitations, debates, or complexities)
+5. Learning Path (next steps for deeper understanding)
+6. Summary & Takeaways
 
 Return a valid JSON object with this exact structure:
 {
   "title": "Episode title",
   "overview": "Brief description",
-  "monetizationModels": [...],
-  "moatAndRisks": {...},
-  "buildVsBuy": {...},
-  "firstThirtyDayPlan": [...],
-  "glossary": [...] // Only if familiarity is not "expert",
-  "sources": [...],
-  "transcript": [...], // Array of {speaker: "CHRIS"|"JESSICA", text: "dialogue"}
+  "keyConcepts": [
+    {
+      "name": "Concept name",
+      "description": "Detailed explanation",
+      "importance": "Why this matters",
+      "examples": ["example1", "example2"]
+    }
+  ],
+  "applicationsAndExamples": {
+    "realWorldUses": ["use1", "use2"],
+    "caseStudies": ["case1", "case2"],
+    "practicalApplications": ["app1", "app2"]
+  },
+  "challengesAndConsiderations": {
+    "limitations": ["limitation1", "limitation2"],
+    "debates": ["debate1", "debate2"],
+    "complexities": ["complexity1", "complexity2"],
+    "ethicalConsiderations": ["ethical1", "ethical2"]
+  },
+  "learningPath": {
+    "nextSteps": ["step1", "step2"],
+    "recommendedResources": ["resource1", "resource2"],
+    "skillsToDeepDive": ["skill1", "skill2"],
+    "timeToMastery": "estimated time"
+  },
+  "summaryAndTakeaways": ["takeaway1", "takeaway2", "takeaway3"],
+  "glossary": [
+    {
+      "term": "Technical term",
+      "definition": "Clear definition"
+    }
+  ], // Only if familiarity is not "expert"
+  "sources": [
+    {
+      "title": "Source title",
+      "url": "https://example.com",
+      "type": "research"
+    }
+  ],
+  "transcript": [
+    {
+      "speaker": "CHRIS",
+      "text": "dialogue text"
+    }
+  ],
   "estimatedDuration": 10
 }`;
   }
 
   private getUserPrompt(input: PodcastInput): string {
     const industriesText = input.industries.length > 0 
-      ? `Focus on these industries: ${input.industries.map(i => i.name).join(', ')}.`
+      ? `Consider applications or examples in these areas: ${input.industries.map(i => i.name).join(', ')}.`
       : '';
     
     const useCaseText = input.useCase 
-      ? `Pay special attention to this use case: ${input.useCase}.`
+      ? `Pay special attention to this specific context: ${input.useCase}.`
       : '';
 
-    return `Generate a podcast script about: ${input.topic}
+    return `Generate an educational podcast script about: ${input.topic}
 
 User Context:
 - Familiarity level: ${input.familiarity === 'new' ? 'New to this topic' : input.familiarity === 'some' ? 'Some background knowledge' : 'Expert level'}
 - ${industriesText}
 - ${useCaseText}
 
-Make sure CHRIS and JESSICA have distinct voices and naturally build on each other's points. Include real-world examples and specific next steps.`;
+Make sure CHRIS and JESSICA have distinct voices and naturally build on each other's points. Include practical examples and actionable insights for learning.`;
   }
 
   async generateScript(input: PodcastInput): Promise<PodcastScript> {
@@ -204,12 +242,34 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
 
   // Utility method to validate script structure
   validateScript(script: any): script is PodcastScript {
-    const required = ['title', 'overview', 'monetizationModels', 'moatAndRisks', 'buildVsBuy', 'firstThirtyDayPlan', 'sources', 'transcript'];
-    return required.every(field => field in script) && 
-           Array.isArray(script.transcript) &&
+    console.log('🔍 Validating script structure:', {
+      hasTitle: 'title' in script,
+      hasOverview: 'overview' in script,
+      hasKeyConcepts: 'keyConcepts' in script,
+      hasApplicationsAndExamples: 'applicationsAndExamples' in script,
+      hasChallengesAndConsiderations: 'challengesAndConsiderations' in script,
+      hasLearningPath: 'learningPath' in script,
+      hasSummaryAndTakeaways: 'summaryAndTakeaways' in script,
+      hasSources: 'sources' in script,
+      hasTranscript: 'transcript' in script,
+      scriptKeys: Object.keys(script)
+    });
+    
+    const required = ['title', 'overview', 'keyConcepts', 'applicationsAndExamples', 'challengesAndConsiderations', 'learningPath', 'summaryAndTakeaways', 'sources', 'transcript'];
+    const hasAllFields = required.every(field => field in script);
+    
+    const hasValidTranscript = Array.isArray(script.transcript) &&
            script.transcript.every((line: any) => 
              line.speaker && ['CHRIS', 'JESSICA'].includes(line.speaker) && line.text
            );
+    
+    console.log('🔍 Validation details:', {
+      hasAllFields,
+      hasValidTranscript,
+      missingFields: required.filter(field => !(field in script))
+    });
+    
+    return hasAllFields && hasValidTranscript;
   }
 
   // Method to estimate reading time from transcript

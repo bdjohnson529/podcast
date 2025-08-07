@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# CommercializeCast Setup Script
+# AudioCourse AI Setup Script
 
-echo "🚀 Setting up CommercializeCast..."
+echo "🚀 Setting up AudioCourse AI..."
 
 # Check if .env.local exists
 if [ ! -f .env.local ]; then

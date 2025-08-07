@@ -39,16 +39,17 @@ const defaultInput: PodcastInput = {
 };
 
 const defaultIndustries: Industry[] = [
-  { id: 'finance', name: 'Finance' },
-  { id: 'insurance', name: 'Insurance' },
-  { id: 'retail', name: 'Retail' },
-  { id: 'supply-chain', name: 'Supply Chain' },
-  { id: 'healthcare', name: 'Healthcare' },
-  { id: 'media', name: 'Media' },
-  { id: 'manufacturing', name: 'Manufacturing' },
+  { id: 'technology', name: 'Technology' },
+  { id: 'science', name: 'Science' },
+  { id: 'business', name: 'Business' },
+  { id: 'history', name: 'History' },
+  { id: 'arts', name: 'Arts & Culture' },
+  { id: 'health', name: 'Health & Medicine' },
+  { id: 'environment', name: 'Environment' },
+  { id: 'psychology', name: 'Psychology' },
+  { id: 'philosophy', name: 'Philosophy' },
+  { id: 'economics', name: 'Economics' },
   { id: 'education', name: 'Education' },
-  { id: 'real-estate', name: 'Real Estate' },
-  { id: 'automotive', name: 'Automotive' },
   { id: 'other', name: 'Other' },
 ];
 

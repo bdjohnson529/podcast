@@ -48,25 +48,25 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
         <p className="text-gray-600">{script.overview}</p>
       </div>
 
-      {/* Monetization Models */}
+      {/* Key Concepts */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Monetization Models
+          Key Concepts
         </h3>
         <div className="space-y-4">
-          {(script.monetizationModels || []).map((model, index) => (
+          {(script.keyConcepts || []).map((concept, index) => (
             <div key={index} className="border-l-4 border-primary-400 pl-4">
-              <h4 className="font-medium text-gray-900">{model.name}</h4>
-              <p className="text-gray-600 text-sm mt-1">{model.description}</p>
+              <h4 className="font-medium text-gray-900">{concept.name}</h4>
+              <p className="text-gray-600 text-sm mt-1">{concept.description}</p>
               <div className="mt-2">
                 <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded">
-                  {model.revenueModel}
+                  {concept.importance}
                 </span>
               </div>
-              {(model.gtmNotes?.length || 0) > 0 && (
+              {(concept.examples?.length || 0) > 0 && (
                 <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
-                  {(model.gtmNotes || []).map((note, noteIndex) => (
-                    <li key={noteIndex}>{note}</li>
+                  {(concept.examples || []).map((example, exampleIndex) => (
+                    <li key={exampleIndex}>{example}</li>
                   ))}
                 </ul>
               )}
@@ -75,42 +75,42 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
         </div>
       </div>
 
-      {/* Moats & Risks */}
+      {/* Challenges & Considerations */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Competitive Moats & Risks
+          Challenges & Considerations
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">Competitive Moats</h4>
+            <h4 className="font-medium text-blue-700 mb-2">Applications & Examples</h4>
             <ul className="space-y-1 text-sm text-gray-600">
-              {(script.moatAndRisks?.competitiveMoats || []).map((moat, index) => (
+              {(script.applicationsAndExamples?.realWorldUses || []).map((use, index) => (
                 <li key={index} className="flex items-start space-x-2">
-                  <span className="text-green-500 mt-1">•</span>
-                  <span>{moat}</span>
+                  <span className="text-blue-500 mt-1">•</span>
+                  <span>{use}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium text-red-700 mb-2">Technical Risks</h4>
+              <h4 className="font-medium text-amber-700 mb-2">Limitations</h4>
               <ul className="space-y-1 text-sm text-gray-600">
-                {(script.moatAndRisks?.technicalRisks || []).map((risk, index) => (
+                {(script.challengesAndConsiderations?.limitations || []).map((limitation, index) => (
                   <li key={index} className="flex items-start space-x-2">
-                    <span className="text-red-500 mt-1">•</span>
-                    <span>{risk}</span>
+                    <span className="text-amber-500 mt-1">•</span>
+                    <span>{limitation}</span>
                   </li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="font-medium text-amber-700 mb-2">Regulatory Risks</h4>
+              <h4 className="font-medium text-purple-700 mb-2">Complexities</h4>
               <ul className="space-y-1 text-sm text-gray-600">
-                {(script.moatAndRisks?.regulatoryRisks || []).map((risk, index) => (
+                {(script.challengesAndConsiderations?.complexities || []).map((complexity, index) => (
                   <li key={index} className="flex items-start space-x-2">
-                    <span className="text-amber-500 mt-1">•</span>
-                    <span>{risk}</span>
+                    <span className="text-purple-500 mt-1">•</span>
+                    <span>{complexity}</span>
                   </li>
                 ))}
               </ul>
@@ -119,32 +119,36 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
         </div>
       </div>
 
-      {/* Build vs Buy */}
+      {/* Learning Path */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Build vs Buy Recommendation
+          Learning Path
         </h3>
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
-            <span className="font-medium">Recommendation:</span>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-              script.buildVsBuy?.buildRecommendation === 'build' 
-                ? 'bg-blue-100 text-blue-800'
-                : script.buildVsBuy?.buildRecommendation === 'buy'
-                ? 'bg-green-100 text-green-800'
-                : 'bg-purple-100 text-purple-800'
-            }`}>
-              {(script.buildVsBuy?.buildRecommendation || '').toUpperCase()}
+            <span className="font-medium">Time to Mastery:</span>
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              {script.learningPath?.timeToMastery || 'Variable'}
             </span>
           </div>
-          <p className="text-gray-600">{script.buildVsBuy?.reasoning}</p>
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Key Considerations</h4>
+            <h4 className="font-medium text-gray-900 mb-2">Next Steps</h4>
             <ul className="space-y-1 text-sm text-gray-600">
-              {(script.buildVsBuy?.keyConsiderations || []).map((consideration, index) => (
+              {(script.learningPath?.nextSteps || []).map((step, index) => (
                 <li key={index} className="flex items-start space-x-2">
                   <span className="text-gray-400 mt-1">•</span>
-                  <span>{consideration}</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">Recommended Resources</h4>
+            <ul className="space-y-1 text-sm text-gray-600">
+              {(script.learningPath?.recommendedResources || []).map((resource, index) => (
+                <li key={index} className="flex items-start space-x-2">
+                  <span className="text-gray-400 mt-1">•</span>
+                  <span>{resource}</span>
                 </li>
               ))}
             </ul>
@@ -152,18 +156,18 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
         </div>
       </div>
 
-      {/* 30-Day Plan */}
+      {/* Summary & Takeaways */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          First 30-Day Action Plan
+          Summary & Takeaways
         </h3>
         <ol className="space-y-2">
-          {(script.firstThirtyDayPlan || []).map((step, index) => (
+          {(script.summaryAndTakeaways || []).map((takeaway, index) => (
             <li key={index} className="flex items-start space-x-3">
               <span className="flex-shrink-0 w-6 h-6 bg-primary-600 text-white text-sm font-medium rounded-full flex items-center justify-center">
                 {index + 1}
               </span>
-              <span className="text-gray-700">{step}</span>
+              <span className="text-gray-700">{takeaway}</span>
             </li>
           ))}
         </ol>

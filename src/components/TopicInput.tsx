@@ -47,10 +47,10 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
     <div className="card">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Generate Your AI Commercialization Podcast
+          Generate Your Learning Podcast
         </h2>
         <p className="text-gray-600">
-          Enter an AI topic and get a detailed 8-12 minute podcast exploring its commercialization opportunities.
+          Enter any topic and get a detailed 8-12 minute AI-generated podcast to accelerate your learning.
         </p>
       </div>
 
@@ -58,14 +58,14 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
         {/* Topic Input */}
         <div>
           <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-2">
-            AI Topic *
+            Topic *
           </label>
           <input
             type="text"
             id="topic"
             value={currentInput.topic}
             onChange={(e) => setCurrentInput({ topic: e.target.value })}
-            placeholder="e.g., Genie 3, VLMs for robotics, AI-powered drug discovery"
+            placeholder="e.g., Machine Learning, Quantum Computing, Climate Change, Medieval History"
             className="input-field"
             disabled={isGeneratingScript}
           />
@@ -103,13 +103,13 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
           </div>
         </div>
 
-        {/* Industries */}
+        {/* Focus Areas */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Target Industries (Optional)
+            Focus Areas (Optional)
           </label>
           
-          {/* Selected Industries */}
+          {/* Selected Focus Areas */}
           {(currentInput.industries?.length || 0) > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {(currentInput.industries || []).map((industry) => (
@@ -139,7 +139,7 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
               disabled={isGeneratingScript}
               className="input-field flex items-center justify-between"
             >
-              <span className="text-gray-500">Select industries to focus on</span>
+              <span className="text-gray-500">Select focus areas</span>
               <ChevronDownIcon className="h-5 w-5 text-gray-400" />
             </button>
             
