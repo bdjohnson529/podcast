@@ -34,17 +34,10 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('Authorization');
     
     if (scope === 'public') {
-      // Public episodes - no auth required
+      // Public episodes - no auth required, use service role to bypass RLS
       let query = supabaseServiceRole
         .from('episodes')
-        .select(`
-          *,
-          profiles:user_id (
-            id,
-            email,
-            full_name
-          )
-        `)
+        .select('*')
         .eq('visibility', 'public')
         .order('created_at', { ascending: false });
       
@@ -54,11 +47,11 @@ export async function GET(request: NextRequest) {
       } else if (filters.status === 'processing') {
         query = query.is('audio_url', null);
       }
-      
+
       if (filters.topic) {
         query = query.ilike('topic', `%${filters.topic}%`);
       }
-      
+
       if (filters.owner === 'me' && authHeader?.startsWith('Bearer ')) {
         const token = authHeader.slice(7);
         const { data: { user } } = await supabaseServiceRole.auth.getUser(token);
@@ -66,16 +59,16 @@ export async function GET(request: NextRequest) {
           query = query.eq('user_id', user.id);
         }
       }
-      
+
       query = query.limit(50);
-      
+
       const { data: episodes, error } = await query;
-      
+
       if (error) {
         console.error('Public episodes error:', error);
         return NextResponse.json({ episodes: [] }, { status: 200 });
       }
-      
+
       return NextResponse.json({ episodes: episodes || [] });
     }
     
