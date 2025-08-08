@@ -151,62 +151,87 @@ export default function PublicSamples() {
   if (!episodes.length || !selected?.audio_url) return null;
 
   return (
-    <div className="mt-6 max-w-2xl mx-auto">
-      <div className="bg-purple-100/90 backdrop-blur rounded-xl border border-purple-300 shadow-sm p-4">
-        {/* Title and selector */}
-        <div className="flex items-center justify-center mb-2">
-          <p className="text-s text-gray-500 text-center font-bold">{selected?.script?.title || 'Public episode'}</p>
+    <div className="mt-8 max-w-2xl mx-auto">
+      <div className="rounded-2xl border border-white/50 bg-white/70 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.08)] p-6">
+        {/* Title */}
+        <div className="flex items-center justify-center mb-4">
+          <p className="text-sm text-ink font-semibold text-center">{selected?.script?.title || 'Public episode'}</p>
         </div>
 
         {/* Controls */}
         <div className="flex items-center justify-center gap-4">
           <button
-            aria-label="Previous"
+            aria-label="Previous track"
             onClick={skipPrev}
-            className="p-2 text-gray-500 hover:text-gray-800 transition-colors"
+            className="p-2 min-w-[40px] min-h-[40px] text-ink/70 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40 rounded-full"
           >
             <BackwardIcon className="h-5 w-5" />
           </button>
           <button
             aria-label={isPlaying ? 'Pause' : 'Play'}
             onClick={togglePlay}
-            className="p-3 rounded-full bg-gray-900 text-white hover:bg-gray-800 shadow"
+            className="p-3 min-w-[52px] min-h-[52px] rounded-full bg-gradient-to-r from-primary to-accent text-white hover:scale-[1.03] active:scale-[0.98] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/30 shadow-lg shadow-primary/20"
           >
             {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
           </button>
           <button
-            aria-label="Next"
+            aria-label="Next track"
             onClick={() => skipNext(false)}
-            className="p-2 text-gray-500 hover:text-gray-800 transition-colors"
+            className="p-2 min-w-[40px] min-h-[40px] text-ink/70 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40 rounded-full"
           >
             <ForwardIcon className="h-5 w-5" />
           </button>
         </div>
 
         {/* Progress bar */}
-        <div className="mt-3">
-          <div className="flex items-center text-[11px] text-gray-500">
-            <span className="tabular-nums">{fmt(currentTime)}</span>
+        <div className="mt-4">
+          <div className="flex items-center text-xs text-ink-2">
+            <span className="tabular-nums w-10 text-left">{fmt(currentTime)}</span>
             <div
               ref={progressRef}
               onClick={onBarClick}
-              className="mx-3 flex-1 h-1.5 bg-gray-200 rounded-full cursor-pointer relative"
+              className="mx-3 flex-1 h-2 bg-ink/10 rounded-full cursor-pointer relative focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
+              role="slider"
+              aria-valuemin={0}
+              aria-valuemax={duration}
+              aria-valuenow={currentTime}
+              aria-label="Seek audio position"
+              tabIndex={0}
             >
               <div
-                className="absolute left-0 top-0 h-full bg-primary-600 rounded-full"
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-primary to-accent rounded-full"
                 style={{ width: `${progress}%` }}
               />
               <div
-                className="absolute -top-1.5 h-4 w-4 rounded-full bg-white border border-gray-300 shadow"
+                className="absolute -top-1 h-4 w-4 rounded-full bg-white border-2 border-primary shadow-sm"
                 style={{ left: `calc(${progress}% - 8px)` }}
               />
             </div>
-            <span className="tabular-nums">{fmt(duration)}</span>
+            <span className="tabular-nums w-10 text-right">{fmt(duration)}</span>
           </div>
         </div>
 
+        {/* Episode selector */}
+        {episodes.length > 1 && (
+          <div className="mt-3 flex justify-center">
+            <select
+              id="sample-select"
+              className="text-xs bg-white/50 border border-ink/10 rounded-lg px-3 py-1.5 text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
+              value={selected?.id}
+              onChange={(e) => setSelectedId(e.target.value)}
+              aria-label="Choose episode"
+            >
+              {episodes.map((ep, idx) => (
+                <option key={ep.id} value={ep.id}>
+                  {ep.script?.title || `Episode ${idx + 1}`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Hidden audio element */}
-        <audio ref={audioRef} preload="metadata" />
+        <audio ref={audioRef} preload="metadata" aria-live="polite" />
       </div>
     </div>
   );
