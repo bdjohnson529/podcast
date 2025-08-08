@@ -125,7 +125,7 @@ export function Library() {
     };
 
     return (
-      <div className="card">
+      <div className="bg-white rounded-xl p-6">
         <div className="flex items-center mb-4">
           <button
             onClick={() => setPlayingEpisode(null)}
@@ -148,7 +148,7 @@ export function Library() {
 
   if (loading) {
     return (
-      <div className="card">
+      <div className="bg-white rounded-xl p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Recent Episodes
         </h3>
@@ -162,7 +162,7 @@ export function Library() {
 
   if (allEpisodes.length === 0) {
     return (
-      <div className="card">
+      <div className="bg-white rounded-xl p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Recent Episodes
         </h3>
@@ -197,7 +197,7 @@ export function Library() {
   }
 
   return (
-    <div className="card">
+    <div className="bg-white rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">
           Recent Episodes
@@ -215,10 +215,10 @@ export function Library() {
             <div
               key={episode.id}
               onClick={() => handleLoadEpisode(episode)}
-              className={`group p-3 border rounded-lg cursor-pointer transition-all ${
+              className={`group p-3 rounded-lg cursor-pointer transition-all ${
                 hasAudio 
-                  ? 'border-green-200 hover:border-green-300 hover:bg-green-50/50' 
-                  : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50/50'
+                  ? 'hover:bg-green-50/50' 
+                  : 'hover:bg-primary-50/50'
               }`}
             >
               <div className="flex items-start justify-between">
