@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 interface SidebarProps {
   activeTab: 'create' | 'episodes';
@@ -7,16 +8,7 @@ interface SidebarProps {
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
-    <div className="fixed left-0 top-0 w-64 bg-white border-r border-gray-200 h-full flex flex-col shadow-sm z-10">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">AC</span>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900">AudioCourse AI</h1>
-        </div>
-      </div>
-      
+    <div className="fixed left-0 top-[5rem] w-64 bg-white border-r border-gray-200 h-[calc(100vh-5rem)] flex flex-col shadow-sm z-10">
       <nav className="flex-1 p-4">
         <div className="space-y-1">
           <button
