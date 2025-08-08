@@ -46,11 +46,11 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <Analytics />
 
-      <div className="flex-1">
+      <div className="ml-64">
         <div className="p-8 space-y-8">
           <AuthBanner />
 
