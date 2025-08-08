@@ -21,7 +21,7 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="card">
+      <div>
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">{script.title}</h2>
@@ -60,7 +60,7 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
       </div>
 
       {/* Tabbed Content */}
-      <div className="card">
+      <div className="border-t border-gray-200 pt-6">
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 mb-6">
           <nav className="-mb-px flex space-x-8">

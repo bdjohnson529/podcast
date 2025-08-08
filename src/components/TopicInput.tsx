@@ -16,17 +16,36 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
   const isFormValid = currentInput.topic.trim().length > 0;
 
   return (
-    <div className="card">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Generate Your Learning Podcast
-        </h2>
-        <p className="text-gray-600">
-          Enter any topic and get a detailed AI-generated podcast tailored to your preferred length (1-15 minutes) to accelerate your learning.
-        </p>
-      </div>
+    <div>
+      {isGeneratingScript ? (
+        // Loading Screen
+        <div className="text-center py-12">
+          <div className="mb-6">
+            <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Generating Your Podcast Script
+            </h2>
+            <p className="text-gray-600">
+              Our AI is crafting a personalized learning experience for &ldquo;{currentInput.topic}&rdquo;
+            </p>
+          </div>
+          <div className="mt-6 text-xs text-gray-400">
+            This typically takes 30-60 seconds
+          </div>
+        </div>
+      ) : (
+        // Form Content
+        <>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Generate Your Learning Podcast
+            </h2>
+            <p className="text-gray-600">
+              Enter any topic and get a detailed AI-generated podcast tailored to your preferred length (1-15 minutes) to accelerate your learning.
+            </p>
+          </div>
 
-      <div className="space-y-6">
+          <div className="space-y-6">
         {/* Topic Input */}
         <div>
           <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-2">
@@ -37,13 +56,10 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
             id="topic"
             value={currentInput.topic}
             onChange={(e) => setCurrentInput({ topic: e.target.value })}
-            placeholder="e.g., Machine Learning, Quantum Computing, Climate Change, Medieval History"
+            placeholder="Enter any topic you want to learn about"
             className="input-field"
             disabled={isGeneratingScript}
           />
-          <p className="mt-1 text-sm text-gray-500">
-            Enter any topic you want to explore and learn about
-          </p>
         </div>
 
         {/* Familiarity Level */}
@@ -96,57 +112,10 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
               <span>15 min</span>
             </div>
           </div>
-          <p className="mt-1 text-sm text-gray-500">
-            Shorter episodes focus on key concepts, longer ones include more examples and depth
-          </p>
         </div>
-
-        {/* Generate Button */}
-        <div className="pt-4">
-          <button
-            type="button"
-            onClick={onGenerate}
-            disabled={!isFormValid || isGeneratingScript}
-            className="btn-primary w-full text-lg py-3"
-          >
-            {isGeneratingScript ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Generating Script...</span>
-              </div>
-            ) : (
-              'Generate Podcast Script'
-            )}
-          </button>
-          
-          {!isFormValid && (
-            <p className="mt-2 text-sm text-red-600">
-              Please enter a topic to continue
-            </p>
-          )}
-
-          {/* Debug button for development */}
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  const response = await fetch('/api/debug');
-                  const debug = await response.json();
-                  console.log('🔍 Debug Info:', debug);
-                  alert('Debug info logged to console');
-                } catch (error) {
-                  console.error('Debug failed:', error);
-                  alert('Debug failed - check console');
-                }
-              }}
-              className="mt-2 w-full text-sm text-gray-600 hover:text-gray-800 py-2"
-            >
-              🔍 Debug API Connections
-            </button>
-          )}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

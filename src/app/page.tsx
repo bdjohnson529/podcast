@@ -264,20 +264,15 @@ export default function HomePage() {
       {renderStepIndicator()}
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6">
+
+          {/* Step 1 */}
           {currentStep === 'input' && (
-            <div className="space-y-6">
-              <TopicInput onGenerate={handleGenerateScript} />
-              {isGeneratingScript && (
-                <LoadingState 
-                  message="Generating your podcast script..." 
-                  subMessage="This may take 30-60 seconds"
-                />
-              )}
-            </div>
+            <TopicInput onGenerate={handleGenerateScript} />
           )}
 
+          {/* Step 2 */}
           {currentStep === 'script' && currentScript && (
             <div className="space-y-6">
               <ScriptPreview 
@@ -305,8 +300,76 @@ export default function HomePage() {
           )}
         </div>
 
-        <div className="lg:col-span-1">
-          <SavedEpisodes />
+        {/* Attached Footer Navigation */}
+        <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
+          <div className="flex justify-between items-center">
+            {/* Previous Button */}
+            <button
+              onClick={() => {
+                if (currentStep === 'script') setCurrentStep('input');
+                if (currentStep === 'audio') setCurrentStep('script');
+              }}
+              disabled={currentStep === 'input'}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                currentStep === 'input'
+                  ? 'text-gray-400 cursor-not-allowed bg-gray-100'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-white shadow-sm'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <div className="text-left">
+                <div className="text-sm">
+                  {currentStep === 'script' && 'Edit Topic'}
+                  {currentStep === 'audio' && 'Review Script'}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {currentStep === 'script' && 'Change your learning focus'}
+                  {currentStep === 'audio' && 'Make final adjustments'}
+                </div>
+              </div>
+            </button>
+
+
+
+            {/* Next Button */}
+            <button
+              onClick={() => {
+                if (currentStep === 'input') handleGenerateScript();
+                if (currentStep === 'script') handleGenerateAudio();
+              }}
+              disabled={
+                (currentStep === 'input' && !currentInput.topic.trim()) ||
+                (currentStep === 'script' && !currentScript) ||
+                currentStep === 'audio' ||
+                isGeneratingScript ||
+                isGeneratingAudio
+              }
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
+                (currentStep === 'input' && !currentInput.topic.trim()) ||
+                (currentStep === 'script' && !currentScript) ||
+                currentStep === 'audio' ||
+                isGeneratingScript ||
+                isGeneratingAudio
+                  ? 'text-gray-400 cursor-not-allowed bg-gray-100'
+                  : 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
+              }`}
+            >
+              <div className="text-right">
+                <div className="text-sm">
+                  {currentStep === 'input' && 'Generate Script'}
+                  {currentStep === 'script' && 'Create Audio'}
+                  {currentStep === 'audio' && 'Complete'}
+                </div>
+              </div>
+              {currentStep !== 'audio' && (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -160,7 +160,7 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="card">
+      <div>
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">{script.title}</h2>
@@ -290,7 +290,7 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
       </div>
 
       {/* Transcript */}
-      <div className="card">
+      <div className="border-t border-gray-200 pt-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Full Transcript
         </h3>
