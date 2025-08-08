@@ -80,7 +80,7 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
                 disabled={isGeneratingScript}
                 className={`p-3 text-left border rounded-lg transition-all ${
                   currentInput.familiarity === option.value
-                    ? 'border-primary-500 bg-primary-50 text-primary-700'
+                    ? 'border-blue-500 bg-blue-100 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
