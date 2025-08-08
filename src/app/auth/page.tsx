@@ -10,15 +10,10 @@ export default function AuthPage() {
   const { user, session, loading, signInWithGoogle, signOut } = useAuth();
   const router = useRouter();
 
-  // Redirect to home if already signed in and coming from a direct visit
+  // Redirect to home if already signed in
   useEffect(() => {
-    if (!loading && user && typeof window !== 'undefined') {
-      const referrer = document.referrer;
-      const isDirectVisit = !referrer || !referrer.includes(window.location.hostname);
-      
-      if (isDirectVisit) {
-        router.push('/');
-      }
+    if (!loading && user) {
+      router.push('/');
     }
   }, [user, loading, router]);
 

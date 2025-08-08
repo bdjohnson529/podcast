@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/components/AuthProvider';
 import { TopicInput } from '@/components/TopicInput';
@@ -15,7 +16,8 @@ type AppStep = 'input' | 'script' | 'audio';
 
 export default function HomePage() {
   const [currentStep, setCurrentStep] = useState<AppStep>('input');
-  const { session } = useAuth();
+  const { session, user, loading } = useAuth();
+  const router = useRouter();
   const {
     currentInput,
     currentScript,
@@ -28,6 +30,13 @@ export default function HomePage() {
     setIsGeneratingAudio,
     resetCurrentSession,
   } = useAppStore();
+
+  // Redirect unauthenticated users to landing page
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/landing');
+    }
+  }, [user, loading, router]);
 
   const handleGenerateScript = async () => {
     if (!currentInput.topic.trim()) {
@@ -224,6 +233,30 @@ export default function HomePage() {
       </div>
     </div>
   );
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading while redirecting unauthenticated users
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
