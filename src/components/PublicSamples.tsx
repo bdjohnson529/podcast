@@ -154,26 +154,8 @@ export default function PublicSamples() {
     <div className="mt-6 max-w-2xl mx-auto">
       <div className="bg-white/90 backdrop-blur rounded-xl border border-gray-200 shadow-sm p-4">
         {/* Title and selector */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="min-w-0 pr-3">
-            <p className="text-sm font-medium text-gray-900 truncate">Listen to a sample</p>
-            <p className="text-xs text-gray-500 truncate">{selected?.script?.title || 'Public episode'}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="sr-only" htmlFor="sample-select">Choose episode</label>
-            <select
-              id="sample-select"
-              className="text-xs bg-white border border-gray-200 rounded-md px-2 py-1 text-gray-700"
-              value={selected?.id}
-              onChange={(e) => setSelectedId(e.target.value)}
-            >
-              {episodes.map(ep => (
-                <option key={ep.id} value={ep.id}>
-                  {ep.script?.title || 'Episode'}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="flex items-center justify-center mb-2">
+          <p className="text-s text-gray-500 text-center font-bold">{selected?.script?.title || 'Public episode'}</p>
         </div>
 
         {/* Controls */}
