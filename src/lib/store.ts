@@ -36,6 +36,7 @@ const defaultInput: PodcastInput = {
   familiarity: 'some',
   industries: [],
   useCase: '',
+  duration: 8, // Default to 8 minutes
 };
 
 const defaultIndustries: Industry[] = [

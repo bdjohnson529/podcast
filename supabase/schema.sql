@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS episodes (
   familiarity TEXT NOT NULL CHECK (familiarity IN ('new', 'some', 'expert')),
   industries TEXT[] DEFAULT '{}',
   use_case TEXT,
+  duration INTEGER NOT NULL DEFAULT 8 CHECK (duration >= 1 AND duration <= 15), -- target duration in minutes
   script JSONB NOT NULL,
   audio_url TEXT,
   audio_duration INTEGER, -- in seconds
@@ -61,6 +62,7 @@ SELECT
   id,
   topic,
   familiarity,
+  duration,
   industries,
   script->>'title' as title,
   script->>'estimatedDuration' as estimated_duration,

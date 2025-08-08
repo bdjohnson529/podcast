@@ -50,7 +50,7 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
           Generate Your Learning Podcast
         </h2>
         <p className="text-gray-600">
-          Enter any topic and get a detailed 8-12 minute AI-generated podcast to accelerate your learning.
+          Enter any topic and get a detailed AI-generated podcast tailored to your preferred length (1-15 minutes) to accelerate your learning.
         </p>
       </div>
 
@@ -101,6 +101,34 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Episode Length */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Episode Length: {currentInput.duration} minute{currentInput.duration !== 1 ? 's' : ''}
+          </label>
+          <div className="space-y-3">
+            <input
+              type="range"
+              min="1"
+              max="15"
+              step="1"
+              value={currentInput.duration}
+              onChange={(e) => setCurrentInput({ duration: parseInt(e.target.value) })}
+              disabled={isGeneratingScript}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>1 min</span>
+              <span>Quick overview</span>
+              <span>Detailed dive</span>
+              <span>15 min</span>
+            </div>
+          </div>
+          <p className="mt-1 text-sm text-gray-500">
+            Shorter episodes focus on key concepts, longer ones include more examples and depth
+          </p>
         </div>
 
         {/* Focus Areas */}

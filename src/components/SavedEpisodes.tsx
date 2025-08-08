@@ -70,6 +70,9 @@ export function SavedEpisodes() {
                     <span>~{episode.script.estimatedDuration}m</span>
                   </div>
                   <div>
+                    Target: {episode.input.duration}m
+                  </div>
+                  <div>
                     {episode.input.familiarity} level
                   </div>
                   {episode.audio && (

@@ -32,4 +32,25 @@
   .gradient-bg {
     @apply bg-gradient-to-br from-primary-50 via-white to-accent-50;
   }
+  
+  /* Custom slider styling */
+  .slider {
+    @apply appearance-none bg-gray-200 rounded-lg outline-none;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-primary-600 rounded-full cursor-pointer shadow-sm;
+  }
+  
+  .slider::-moz-range-thumb {
+    @apply w-4 h-4 bg-primary-600 rounded-full cursor-pointer shadow-sm border-0;
+  }
+  
+  .slider:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+  
+  .slider:disabled::-webkit-slider-thumb {
+    @apply cursor-not-allowed;
+  }
 }

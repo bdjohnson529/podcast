@@ -22,13 +22,23 @@ export async function POST(request: NextRequest) {
     console.log('📥 Request input:', JSON.stringify(input, null, 2));
 
     // Validate input
-    if (!input.topic || !input.familiarity) {
+    if (!input.topic || !input.familiarity || !input.duration) {
       console.error('❌ Validation failed: Missing required fields', {
         topic: !!input.topic,
-        familiarity: !!input.familiarity
+        familiarity: !!input.familiarity,
+        duration: !!input.duration
       });
       return NextResponse.json(
-        { error: 'Topic and familiarity are required' },
+        { error: 'Topic, familiarity, and duration are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate duration range
+    if (input.duration < 1 || input.duration > 15) {
+      console.error('❌ Validation failed: Invalid duration', { duration: input.duration });
+      return NextResponse.json(
+        { error: 'Duration must be between 1 and 15 minutes' },
         { status: 400 }
       );
     }
@@ -68,6 +78,7 @@ export async function POST(request: NextRequest) {
           familiarity: input.familiarity,
           industries: input.industries.map(i => i.name),
           use_case: input.useCase || null,
+          duration: input.duration,
           script: script,
         })
         .select('id')
