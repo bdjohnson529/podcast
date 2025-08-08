@@ -42,9 +42,6 @@ export default function RootLayout({
                     </h1>
                   </Link>
                   <div className="flex items-center space-x-4">
-                    <div className="text-sm text-gray-600 hidden sm:block">
-                      AI-Powered Learning Podcasts
-                    </div>
                     <LoginButton />
                   </div>
                 </div>

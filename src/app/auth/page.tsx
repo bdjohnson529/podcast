@@ -182,29 +182,6 @@ export default function AuthPage() {
             </p>
           </div>
 
-          {/* Benefits */}
-          <div className="mb-6">
-            <h3 className="font-medium text-gray-900 mb-3">What you&apos;ll get:</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-primary-500 rounded-full mr-3"></span>
-                Save unlimited podcast episodes
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-primary-500 rounded-full mr-3"></span>
-                Access your episodes from any device
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-primary-500 rounded-full mr-3"></span>
-                Generate high-quality audio content
-              </li>
-              <li className="flex items-center">
-                <span className="w-2 h-2 bg-primary-500 rounded-full mr-3"></span>
-                Customize content for your needs
-              </li>
-            </ul>
-          </div>
-
           {/* Sign In Button */}
           <button
             onClick={signInWithGoogle}
