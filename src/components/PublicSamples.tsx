@@ -211,25 +211,6 @@ export default function PublicSamples() {
           </div>
         </div>
 
-        {/* Episode selector */}
-        {episodes.length > 1 && (
-          <div className="mt-3 flex justify-center">
-            <select
-              id="sample-select"
-              className="text-xs bg-white/50 border border-ink/10 rounded-lg px-3 py-1.5 text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
-              value={selected?.id}
-              onChange={(e) => setSelectedId(e.target.value)}
-              aria-label="Choose episode"
-            >
-              {episodes.map((ep, idx) => (
-                <option key={ep.id} value={ep.id}>
-                  {ep.script?.title || `Episode ${idx + 1}`}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
         {/* Hidden audio element */}
         <audio ref={audioRef} preload="metadata" aria-live="polite" />
       </div>

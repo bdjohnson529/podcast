@@ -211,11 +211,14 @@ export function Library() {
     }
   };
 
-  // Combine local storage episodes with database episodes
+  // Combine local storage episodes with database episodes, excluding test episodes
   const localEpisodes = savedEpisodes || [];
-  const allEpisodes = [...dbEpisodes, ...localEpisodes.filter(local => 
-    !dbEpisodes.some(db => db.id === local.id)
-  )];
+  const allEpisodes = [
+    ...dbEpisodes.filter(episode => episode.user_id), // Filter out test episodes (episodes without user_id)
+    ...localEpisodes.filter(local => 
+      !dbEpisodes.some(db => db.id === local.id)
+    )
+  ];
 
   // If an episode is being played, show the audio player interface
   if (playingEpisode) {
