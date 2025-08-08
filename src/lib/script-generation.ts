@@ -73,12 +73,6 @@ Return a valid JSON object with this exact structure (NO markdown formatting, NO
     "complexities": ["complexity1", "complexity2"],
     "ethicalConsiderations": ["ethical1", "ethical2"]
   },
-  "learningPath": {
-    "nextSteps": ["step1", "step2"],
-    "recommendedResources": ["resource1", "resource2"],
-    "skillsToDeepDive": ["skill1", "skill2"],
-    "timeToMastery": "estimated time"
-  },
   "summaryAndTakeaways": ["takeaway1", "takeaway2", "takeaway3"],
   "glossary": [
     {
@@ -400,14 +394,13 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
       hasKeyConcepts: 'keyConcepts' in script,
       hasApplicationsAndExamples: 'applicationsAndExamples' in script,
       hasChallengesAndConsiderations: 'challengesAndConsiderations' in script,
-      hasLearningPath: 'learningPath' in script,
       hasSummaryAndTakeaways: 'summaryAndTakeaways' in script,
       hasSources: 'sources' in script,
       hasTranscript: 'transcript' in script,
       scriptKeys: Object.keys(script)
     });
     
-    const required = ['title', 'overview', 'keyConcepts', 'applicationsAndExamples', 'challengesAndConsiderations', 'learningPath', 'summaryAndTakeaways', 'sources', 'transcript'];
+    const required = ['title', 'overview', 'keyConcepts', 'applicationsAndExamples', 'challengesAndConsiderations', 'summaryAndTakeaways', 'sources', 'transcript'];
     const hasAllFields = required.every(field => field in script);
     
     const hasValidTranscript = Array.isArray(script.transcript) &&

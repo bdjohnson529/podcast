@@ -17,7 +17,6 @@ export interface PodcastScript {
   keyConcepts: KeyConcept[];
   applicationsAndExamples: ApplicationsAndExamples;
   challengesAndConsiderations: ChallengesAndConsiderations;
-  learningPath: LearningPath;
   summaryAndTakeaways: string[];
   glossary?: GlossaryTerm[];
   sources: Source[];
@@ -44,13 +43,6 @@ export interface ChallengesAndConsiderations {
   debates: string[];
   complexities: string[];
   ethicalConsiderations: string[];
-}
-
-export interface LearningPath {
-  nextSteps: string[];
-  recommendedResources: string[];
-  skillsToDeepDive: string[];
-  timeToMastery: string;
 }
 
 export interface GlossaryTerm {

@@ -168,43 +168,6 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
         </div>
       </div>
 
-      {/* Learning Path */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Learning Path
-        </h3>
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <span className="font-medium">Time to Mastery:</span>
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-              {script.learningPath?.timeToMastery || 'Variable'}
-            </span>
-          </div>
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">Next Steps</h4>
-            <ul className="space-y-1 text-sm text-gray-600">
-              {(script.learningPath?.nextSteps || []).map((step, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <span className="text-gray-400 mt-1">•</span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-medium text-gray-900 mb-2">Recommended Resources</h4>
-            <ul className="space-y-1 text-sm text-gray-600">
-              {(script.learningPath?.recommendedResources || []).map((resource, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <span className="text-gray-400 mt-1">•</span>
-                  <span>{resource}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-
       {/* Summary & Takeaways */}
       <div className="card">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">

@@ -44,12 +44,6 @@ export async function GET() {
           complexities: [],
           ethicalConsiderations: []
         },
-        learningPath: {
-          nextSteps: [],
-          recommendedResources: [],
-          skillsToDeepDive: [],
-          timeToMastery: 'test'
-        },
         summaryAndTakeaways: [],
         sources: [],
         transcript: [],
