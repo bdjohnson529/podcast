@@ -458,6 +458,7 @@ export function Library() {
           const hasAudio = episode.audio_url || episode.audio?.audioUrl;
           const isPublic = episode.visibility === 'public';
           const isOwner = episode.user_id === session?.user?.id;
+          const canDelete = isOwner || !episode.user_id; // Allow deletion if owner OR if no owner (test episodes)
           
           return (
             <div
@@ -528,8 +529,8 @@ export function Library() {
                       </button>
                     )}
                     
-                    {/* Delete button (always visible for owners) */}
-                    {isOwner && (
+                    {/* Delete button (visible for owners and test episodes without owners) */}
+                    {canDelete && (
                       <button
                         onClick={(e) => handleDeleteEpisode(episode.id, e)}
                         className="p-1 text-gray-400 hover:text-red-500 transition-colors"
