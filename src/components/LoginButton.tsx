@@ -2,6 +2,7 @@
 
 import { useAuth } from './AuthProvider';
 import Link from 'next/link';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 export function LoginButton() {
   const { user, loading, signOut } = useAuth();
@@ -39,9 +40,10 @@ export function LoginButton() {
         
         <button
           onClick={signOut}
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors px-2 py-1 rounded"
+          className="text-sm text-gray-500 hover:text-gray-700 transition-colors px-2 py-1 rounded flex items-center space-x-1"
         >
-          Sign out
+          <Cog6ToothIcon className="h-4 w-4" />
+          <span>Sign out</span>
         </button>
       </div>
     );

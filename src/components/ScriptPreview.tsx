@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { PodcastScript } from '@/types';
 import { ClockIcon, PlayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
@@ -10,6 +11,13 @@ interface ScriptPreviewProps {
 }
 
 export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPreviewProps) {
+  const [activeTab, setActiveTab] = useState<'concepts' | 'script'>('concepts');
+
+  const tabs = [
+    { id: 'concepts', label: 'Key Concepts'},
+    { id: 'script', label: 'Script'}
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -48,31 +56,72 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
         <p className="text-gray-600">{script.overview}</p>
       </div>
 
-      {/* Key Concepts */}
+      {/* Tabbed Content */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Key Concepts
-        </h3>
-        <div className="space-y-4">
-          {(script.keyConcepts || []).map((concept, index) => (
-            <div key={index} className="border-l-4 border-primary-400 pl-4">
-              <h4 className="font-medium text-gray-900">{concept.name}</h4>
-              <p className="text-gray-600 text-sm mt-1">{concept.description}</p>
-              <div className="mt-2">
-                <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded">
-                  {concept.importance}
-                </span>
-              </div>
-              {(concept.examples?.length || 0) > 0 && (
-                <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
-                  {(concept.examples || []).map((example, exampleIndex) => (
-                    <li key={exampleIndex}>{example}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="-mb-px flex space-x-8">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as 'concepts' | 'script')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
+
+        {/* Tab Content */}
+        {activeTab === 'concepts' && (
+          <div className="space-y-4">
+            {(script.keyConcepts || []).map((concept, index) => (
+              <div key={index} className="border-l-4 border-primary-400 pl-4">
+                <h4 className="font-medium text-gray-900">{concept.name}</h4>
+                <p className="text-gray-600 text-sm mt-1">{concept.description}</p>
+                <div className="mt-2">
+                  <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded">
+                    {concept.importance}
+                  </span>
+                </div>
+                {(concept.examples?.length || 0) > 0 && (
+                  <ul className="mt-2 text-sm text-gray-600 list-disc list-inside">
+                    {(concept.examples || []).map((example, exampleIndex) => (
+                      <li key={exampleIndex}>{example}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'script' && (
+          <div className="space-y-4">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-3">Podcast Transcript</h4>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {(script.transcript || []).map((line, index) => (
+                  <div key={index} className="flex items-start space-x-3">
+                    <div className={`flex-shrink-0 px-2 py-1 rounded text-xs font-medium ${
+                      line.speaker === 'CHRIS' 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'bg-purple-100 text-purple-700'
+                    }`}>
+                      {line.speaker}
+                    </div>
+                    <p className="text-gray-700 text-sm leading-relaxed">{line.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Challenges & Considerations */}

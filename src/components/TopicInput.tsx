@@ -93,8 +93,6 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>1 min</span>
-              <span>Quick overview</span>
-              <span>Detailed dive</span>
               <span>15 min</span>
             </div>
           </div>
