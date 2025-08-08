@@ -11,8 +11,8 @@ export async function POST(request: NextRequest) {
     const { action, topic, familiarity, duration, messages } = body;
 
     if (action === 'initialize') {
-      // Generate initial question based on topic and familiarity
-      const initialMessage = generateInitialQuestion(topic, familiarity, duration);
+      // Generate initial question using GPT
+      const initialMessage = await generateInitialQuestion(topic, familiarity, duration);
       
       return NextResponse.json({
         message: initialMessage,
@@ -40,7 +40,64 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateInitialQuestion(topic: string, familiarity: string, duration: number): string {
+async function generateInitialQuestion(topic: string, familiarity: string, duration: number): Promise<string> {
+  const familiarityText = {
+    'new': 'new to this topic',
+    'some': 'have some background',
+    'expert': 'are an expert'
+  }[familiarity] || 'have some background';
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert librarian who helps guide students to information about topics they are interested in.
+            
+The student wants to learn about "${topic}" and they ${familiarityText}. 
+            
+Your job is to make sure you understand specifically what the topic is that the student is inquiring about, before asking follow up questions.
+
+Think about all the possible topics, in different disciplines, that the user could be asking about.
+
+Ask a question that helps you clarify exactly what the user is interested in learning. Use bullet points to give examples of what the topic could be. Make it concise.`
+          },
+          {
+            role: 'user',
+            content: `Topic: ${topic}
+Familiarity: ${familiarityText}
+Duration: ${duration} minutes
+
+Generate an initial question to better understand their learning needs.`
+          }
+        ],
+        max_tokens: 200,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0]?.message?.content || getBoilerplateQuestion(topic, familiarity, duration);
+    
+  } catch (error) {
+    console.error('Error generating initial question:', error);
+    // Fallback to boilerplate if OpenAI fails
+    return getBoilerplateQuestion(topic, familiarity, duration);
+  }
+}
+
+function getBoilerplateQuestion(topic: string, familiarity: string, duration: number): string {
   const familiarityText = {
     'new': 'new to this topic',
     'some': 'have some background',
@@ -64,7 +121,6 @@ async function generateResponse(
   familiarity: string, 
   duration: number
 ): Promise<{ message: string; isComplete: boolean; context?: string }> {
-  // Simple logic for now - in a real implementation, you'd use an LLM API
   const userMessages = messages.filter(m => m.role === 'user');
   const conversationLength = userMessages.length;
 
@@ -81,39 +137,81 @@ This should be much more targeted and valuable for your learning goals. Let's ge
     };
   }
 
-  // Generate follow-up questions based on previous responses
-  const lastUserMessage = userMessages[userMessages.length - 1]?.content || '';
-  
-  if (conversationLength === 1) {
+  // Generate follow-up question using GPT
+  try {
+    const followUpQuestion = await generateFollowUpQuestion(messages, topic, familiarity, duration);
+    
     return {
-      message: generateFollowUpQuestion(lastUserMessage, topic, familiarity),
+      message: followUpQuestion,
+      isComplete: false,
+    };
+  } catch (error) {
+    console.error('Error generating follow-up question:', error);
+    
+    // Fallback to a simple response
+    return {
+      message: "That's helpful context! Is there anything specific you'd like me to emphasize or any particular angle you'd like me to take when explaining this topic?",
       isComplete: false,
     };
   }
-
-  return {
-    message: "That's helpful context! Is there anything specific you'd like me to emphasize or any particular angle you'd like me to take when explaining this topic?",
-    isComplete: false,
-  };
 }
 
-function generateFollowUpQuestion(userResponse: string, topic: string, familiarity: string): string {
-  const response = userResponse.toLowerCase();
-  
-  if (response.includes('project') || response.includes('work')) {
-    return `That's great that you're working on a project involving ${topic}! Can you tell me more about the specific challenges you're facing or what aspects of ${topic} would be most helpful for your project? This will help me tailor the content to be immediately applicable.`;
+async function generateFollowUpQuestion(
+  messages: ChatMessage[], 
+  topic: string, 
+  familiarity: string, 
+  duration: number
+): Promise<string> {
+  const conversationHistory = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
+  const familiarityText = {
+    'new': 'new to this topic',
+    'some': 'have some background',
+    'expert': 'are an expert'
+  }[familiarity] || 'have some background';
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert teacher preparing to create a personalized ${duration}-minute educational podcast about "${topic}" for a student who is ${familiarityText}.
+
+Based on the conversation so far, ask ONE thoughtful follow-up question that will help you better understand:
+- What specific aspects they want to focus on
+- How deep to go into certain areas
+- What practical applications matter most to them
+- Any remaining gaps in understanding their needs
+
+Be conversational, build on what they've already shared, and ask the most valuable question to finalize your understanding of their learning goals.
+
+Keep your response focused and ask only ONE question.`
+        },
+        {
+          role: 'user',
+          content: `Here's our conversation so far:
+
+${conversationHistory}
+
+Based on their response, what's the most valuable follow-up question to ask to better understand their learning needs for this ${duration}-minute podcast about ${topic}?`
+        }
+      ],
+      max_tokens: 150,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenAI API error: ${response.status}`);
   }
-  
-  if (response.includes('exam') || response.includes('test') || response.includes('interview')) {
-    return `I understand you're preparing for an evaluation. What level or type of questions do you expect? Are there particular concepts, applications, or areas within ${topic} that you feel less confident about?`;
-  }
-  
-  if (response.includes('curious') || response.includes('interest')) {
-    return `I love the curiosity! Since you're exploring ${topic} out of interest, are there any specific aspects that intrigue you most? For example, are you more interested in the theoretical foundations, practical applications, current developments, or how it relates to other fields?`;
-  }
-  
-  // Generic follow-up
-  return `Thanks for sharing that context! Given your interest in ${topic}, are there any specific concepts, applications, or aspects you'd like me to prioritize? Also, is there a particular depth of explanation that would work best for you?`;
+
+  const data = await response.json();
+  return data.choices[0]?.message?.content || "That's helpful! What specific aspects of this topic would be most valuable for you to understand?";
 }
 
 function extractContext(messages: ChatMessage[], topic: string): string {
