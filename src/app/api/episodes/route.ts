@@ -26,8 +26,53 @@ const createUserClient = (token: string) => {
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const scope = searchParams.get('scope') || 'personal';
+    const filters = searchParams.get('filters') ? JSON.parse(searchParams.get('filters')!) : {};
+    
     // Get auth token from header
     const authHeader = request.headers.get('Authorization');
+    
+    if (scope === 'public') {
+      // Public episodes - no auth required, use service role to bypass RLS
+      let query = supabaseServiceRole
+        .from('episodes')
+        .select('*')
+        .eq('visibility', 'public')
+        .order('created_at', { ascending: false });
+      
+      // Apply filters
+      if (filters.status === 'ready') {
+        query = query.not('audio_url', 'is', null);
+      } else if (filters.status === 'processing') {
+        query = query.is('audio_url', null);
+      }
+
+      if (filters.topic) {
+        query = query.ilike('topic', `%${filters.topic}%`);
+      }
+
+      if (filters.owner === 'me' && authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.slice(7);
+        const { data: { user } } = await supabaseServiceRole.auth.getUser(token);
+        if (user) {
+          query = query.eq('user_id', user.id);
+        }
+      }
+
+      query = query.limit(50);
+
+      const { data: episodes, error } = await query;
+
+      if (error) {
+        console.error('Public episodes error:', error);
+        return NextResponse.json({ episodes: [] }, { status: 200 });
+      }
+
+      return NextResponse.json({ episodes: episodes || [] });
+    }
+    
+    // Personal episodes - auth required
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
       const { data: { user }, error: authError } = await supabaseServiceRole.auth.getUser(token);
@@ -38,11 +83,25 @@ export async function GET(request: NextRequest) {
       
       // Fetch user's episodes using user client for RLS
       const userClient = createUserClient(token);
-      const { data: episodes, error } = await userClient
+      let query = userClient
         .from('episodes')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .order('created_at', { ascending: false });
+      
+      // Apply filters
+      if (filters.status === 'ready') {
+        query = query.not('audio_url', 'is', null);
+      } else if (filters.status === 'processing') {
+        query = query.is('audio_url', null);
+      }
+      
+      if (filters.topic) {
+        query = query.ilike('topic', `%${filters.topic}%`);
+      }
+      
+      query = query.limit(10);
+      
+      const { data: episodes, error } = await query;
       
       if (error) {
         console.error('Database error:', error);
@@ -93,7 +152,8 @@ export async function POST(request: NextRequest) {
       duration,
       script,
       audio_url,
-      audio_duration
+      audio_duration,
+      visibility = 'private'
     } = body;
     
     // Validate required fields
@@ -119,7 +179,8 @@ export async function POST(request: NextRequest) {
         duration,
         script,
         audio_url,
-        audio_duration
+        audio_duration,
+        visibility
       })
       .select()
       .single();

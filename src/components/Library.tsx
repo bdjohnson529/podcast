@@ -3,7 +3,16 @@
 import { useAppStore } from '@/lib/store';
 import { useAuth } from './AuthProvider';
 import { SavedEpisode, AudioGeneration } from '@/types';
-import { ClockIcon, TrashIcon, PlayIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { 
+  ClockIcon, 
+  TrashIcon, 
+  PlayIcon, 
+  ArrowLeftIcon,
+  GlobeAltIcon,
+  LockClosedIcon,
+  ShareIcon,
+  LinkIcon
+} from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AudioPlayer } from './AudioPlayer';
@@ -11,11 +20,20 @@ import { AudioPlayer } from './AudioPlayer';
 export function Library() {
   const { savedEpisodes, removeSavedEpisode, loadSavedEpisode } = useAppStore();
   const { session } = useAuth();
+  
   const [dbEpisodes, setDbEpisodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [playingEpisode, setPlayingEpisode] = useState<any | null>(null);
+  
+  // Scope state - initialize from localStorage or default to 'personal'
+  const [scope, setScope] = useState<'personal' | 'public'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('library-scope') as 'personal' | 'public') || 'personal';
+    }
+    return 'personal';
+  });
 
-  // Fetch episodes from database
+  // Fetch episodes from database based on scope
   useEffect(() => {
     const fetchEpisodes = async () => {
       setLoading(true);
@@ -28,7 +46,11 @@ export function Library() {
           headers['Authorization'] = `Bearer ${session.access_token}`;
         }
         
-        const response = await fetch('/api/episodes', { headers });
+        const url = scope === 'public' 
+          ? `/api/episodes?scope=public`
+          : '/api/episodes';
+        
+        const response = await fetch(url, { headers });
         
         if (response.ok) {
           const data = await response.json();
@@ -41,7 +63,26 @@ export function Library() {
     };
 
     fetchEpisodes();
-  }, [session?.access_token]); // Re-fetch when auth state changes
+  }, [session?.access_token, scope]); // Re-fetch when scope changes
+  
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      
+      switch (e.key) {
+        case '1':
+          setScope('personal');
+          break;
+        case '2':
+          setScope('public');
+          break;
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   const handleLoadEpisode = (episode: SavedEpisode | any) => {
     // Check if the episode has audio for playback
@@ -65,6 +106,78 @@ export function Library() {
         loadSavedEpisode(episode);
       }
     }
+  };
+  
+  const handleShareToggle = async (episodeId: string, currentVisibility: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!session?.access_token) {
+      console.error('No access token available');
+      return;
+    }
+    
+    console.log('🔄 Toggle visibility:', {
+      episodeId,
+      currentVisibility,
+      newVisibility: currentVisibility === 'private' ? 'public' : 'private',
+      sessionUserId: session?.user?.id,
+      playingEpisodeUserId: playingEpisode?.user_id
+    });
+
+    try {
+      const newVisibility = currentVisibility === 'private' ? 'public' : 'private';
+      
+      const response = await fetch(`/api/episodes/visibility`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          episodeId,
+          visibility: newVisibility
+        })
+      });
+      
+      console.log('📡 API Response:', {
+        status: response.status,
+        ok: response.ok
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('✅ Success:', responseData);
+        
+        // Update local state
+        setDbEpisodes(prev => prev.map(ep => 
+          ep.id === episodeId ? { ...ep, visibility: newVisibility } : ep
+        ));
+        
+        // Update playing episode state if it's the same episode
+        if (playingEpisode && playingEpisode.id === episodeId) {
+          setPlayingEpisode((prev: any) => ({ ...prev, visibility: newVisibility }));
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('❌ API Error:', errorData);
+      }
+    } catch (error) {
+      console.error('❌ Failed to toggle visibility:', error);
+    }
+  };
+  
+  const handleCopyLink = async (episodeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const url = `${window.location.origin}/episode/${episodeId}`;
+    await navigator.clipboard.writeText(url);
+    // TODO: Show toast notification
+  };
+  
+  const handleScopeChange = (newScope: 'personal' | 'public') => {
+    setScope(newScope);
+    // Persist user preference
+    localStorage.setItem('library-scope', newScope);
   };
 
   const handleDeleteEpisode = async (episodeId: string, e: React.MouseEvent) => {
@@ -98,11 +211,14 @@ export function Library() {
     }
   };
 
-  // Combine local storage episodes with database episodes
+  // Combine local storage episodes with database episodes, excluding test episodes
   const localEpisodes = savedEpisodes || [];
-  const allEpisodes = [...dbEpisodes, ...localEpisodes.filter(local => 
-    !dbEpisodes.some(db => db.id === local.id)
-  )];
+  const allEpisodes = [
+    ...dbEpisodes.filter(episode => episode.user_id), // Filter out test episodes (episodes without user_id)
+    ...localEpisodes.filter(local => 
+      !dbEpisodes.some(db => db.id === local.id)
+    )
+  ];
 
   // If an episode is being played, show the audio player interface
   if (playingEpisode) {
@@ -126,16 +242,56 @@ export function Library() {
 
     return (
       <div className="bg-white rounded-xl p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => setPlayingEpisode(null)}
-            className="mr-3 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </button>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Now Playing
-          </h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <button
+              onClick={() => setPlayingEpisode(null)}
+              className="mr-3 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </button>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Now Playing
+            </h3>
+          </div>
+          
+          {/* Publish button in playback view */}
+          {(() => {
+            const isOwner = session?.user?.id === playingEpisode.user_id;
+            console.log('🔍 Ownership check in playback:', {
+              sessionUserId: session?.user?.id,
+              episodeUserId: playingEpisode.user_id,
+              isOwner,
+              playingEpisode
+            });
+            
+            return isOwner && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareToggle(playingEpisode.id, playingEpisode.visibility || 'private', e);
+                }}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  playingEpisode.visibility === 'public'
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                title={playingEpisode.visibility === 'public' ? 'Make private' : 'Publish episode'}
+              >
+                {playingEpisode.visibility === 'public' ? (
+                  <>
+                    <LockClosedIcon className="h-4 w-4" />
+                    <span>Make Private</span>
+                  </>
+                ) : (
+                  <>
+                    <GlobeAltIcon className="h-4 w-4" />
+                    <span>Publish</span>
+                  </>
+                )}
+              </button>
+            );
+          })()}
         </div>
         <AudioPlayer 
           script={script} 
@@ -149,6 +305,36 @@ export function Library() {
   if (loading) {
     return (
       <div className="bg-white rounded-xl p-6">
+        {/* Scope Switcher */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => handleScopeChange('personal')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  scope === 'personal'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <LockClosedIcon className="h-4 w-4 inline mr-1" />
+                Personal
+              </button>
+              <button
+                onClick={() => handleScopeChange('public')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  scope === 'public'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <GlobeAltIcon className="h-4 w-4 inline mr-1" />
+                Public
+              </button>
+            </div>
+          </div>
+        </div>
+        
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Recent Episodes
         </h3>
@@ -163,6 +349,38 @@ export function Library() {
   if (allEpisodes.length === 0) {
     return (
       <div className="bg-white rounded-xl p-6">
+        {/* Scope Switcher */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => handleScopeChange('personal')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  scope === 'personal'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <LockClosedIcon className="h-4 w-4 inline mr-1" />
+                Personal
+                <span className="ml-1 text-xs opacity-75">(1)</span>
+              </button>
+              <button
+                onClick={() => handleScopeChange('public')}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  scope === 'public'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <GlobeAltIcon className="h-4 w-4 inline mr-1" />
+                Public
+                <span className="ml-1 text-xs opacity-75">(2)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Recent Episodes
         </h3>
@@ -170,12 +388,17 @@ export function Library() {
           <div className="text-gray-400 mb-4">
             <ClockIcon className="h-12 w-12 mx-auto" />
           </div>
-          <p className="text-gray-500 mb-2">No saved episodes yet</p>
+          <p className="text-gray-500 mb-2">
+            {scope === 'personal' ? 'No saved episodes yet' : 'No public episodes found'}
+          </p>
           <p className="text-sm text-gray-400 mb-4">
-            Generate your first podcast to see it here
+            {scope === 'personal' 
+              ? 'Generate your first podcast to see it here'
+              : 'Try switching to Personal or check back later'
+            }
           </p>
           
-          {!session && (
+          {!session && scope === 'personal' && (
             <div className="mt-4 p-4 bg-primary-50 rounded-lg border border-primary-200">
               <p className="text-sm text-primary-700 mb-2">
                 💡 <strong>Sign in to save episodes permanently!</strong>
@@ -198,18 +421,47 @@ export function Library() {
 
   return (
     <div className="bg-white rounded-xl p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
-          Recent Episodes
-        </h3>
+      {/* Scope Switcher */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => handleScopeChange('personal')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                scope === 'personal'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <LockClosedIcon className="h-4 w-4 inline mr-1" />
+              Personal
+              <span className="ml-1 text-xs opacity-75">(1)</span>
+            </button>
+            <button
+              onClick={() => handleScopeChange('public')}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                scope === 'public'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <GlobeAltIcon className="h-4 w-4 inline mr-1" />
+              Public
+              <span className="ml-1 text-xs opacity-75">(2)</span>
+            </button>
+          </div>
+        </div>
         <span className="text-sm text-gray-500">
-          Last {allEpisodes.length}
+          {scope === 'personal' ? `Last ${allEpisodes.length}` : `${allEpisodes.length} public`}
         </span>
       </div>
 
       <div className="space-y-3">
         {allEpisodes.map((episode: any) => {
           const hasAudio = episode.audio_url || episode.audio?.audioUrl;
+          const isPublic = episode.visibility === 'public';
+          const isOwner = episode.user_id === session?.user?.id;
+          const canDelete = isOwner || !episode.user_id; // Allow deletion if owner OR if no owner (test episodes)
           
           return (
             <div
@@ -223,7 +475,7 @@ export function Library() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mb-1">
                     <h4 className={`font-medium truncate ${
                       hasAudio 
                         ? 'text-gray-900 group-hover:text-green-700' 
@@ -231,16 +483,20 @@ export function Library() {
                     }`}>
                       {episode.script?.title || episode.title || 'Untitled Episode'}
                     </h4>
-                    {hasAudio && (
-                      <div className="flex items-center space-x-1 text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                        <PlayIcon className="h-3 w-3" />
-                        <span className="text-xs font-medium">Ready to Play</span>
+                    
+                    {/* Only show Public badge, not Personal */}
+                    {isPublic && (
+                      <div className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        <GlobeAltIcon className="h-3 w-3" />
+                        <span>Public</span>
                       </div>
                     )}
                   </div>
+                  
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                     Topic: {episode.input?.topic || episode.topic}
                   </p>
+                  
                   <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                     <div className="flex items-center space-x-1">
                       <ClockIcon className="h-3 w-3" />
@@ -253,17 +509,41 @@ export function Library() {
                       {episode.input?.familiarity || episode.familiarity || 'unknown'} level
                     </div>
                   </div>
+                  
                   <div className="text-xs text-gray-400 mt-1">
                     {new Date(episode.savedAt || episode.created_at).toLocaleDateString()}
                   </div>
                 </div>
                 
-                <button
-                  onClick={(e) => handleDeleteEpisode(episode.id, e)}
-                  className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
+                {/* Action Buttons */}
+                <div className="flex items-center space-x-1">
+
+                  
+                  {/* Icon action buttons */}
+                  <div className="flex items-center space-x-1">
+                    {/* Copy link button for public episodes */}
+                    {isPublic && (
+                      <button
+                        onClick={(e) => handleCopyLink(episode.id, e)}
+                        className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                        title="Copy public link"
+                      >
+                        <LinkIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                    
+                    {/* Delete button (visible for owners and test episodes without owners) */}
+                    {canDelete && (
+                      <button
+                        onClick={(e) => handleDeleteEpisode(episode.id, e)}
+                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Delete episode"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           );
@@ -272,7 +552,10 @@ export function Library() {
 
       <div className="mt-4 pt-3 border-t border-gray-200">
         <p className="text-xs text-gray-500 text-center">
-          Episodes automatically saved • Last 5 episodes kept
+          {scope === 'personal' 
+            ? 'Episodes automatically saved • Last 5 episodes kept'
+            : 'Public episodes from the community'
+          }
         </p>
       </div>
     </div>

@@ -10,7 +10,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { Analytics } from "@vercel/analytics/next"
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<'create' | 'episodes'>('create');
+  const [activeTab, setActiveTab] = useState<'create' | 'episodes'>('episodes');
   const { user, loading } = useAuth();
   const router = useRouter();
 

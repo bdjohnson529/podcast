@@ -9,34 +9,39 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          DEFAULT: '#6C5CE7',
+          600: '#5b4fd2',
+          700: '#4c46b0',
         },
         accent: {
-          50: '#fdf4ff',
-          100: '#fae8ff',
-          200: '#f5d0fe',
-          300: '#f0abfc',
-          400: '#e879f9',
-          500: '#d946ef',
-          600: '#c026d3',
-          700: '#a21caf',
-          800: '#86198f',
-          900: '#701a75',
-        }
+          DEFAULT: '#A78BFA',
+          600: '#8B5CF6',
+        },
+        sky: '#60A5FA',
+        bg: '#0B1020',
+        muted: '#F5F7FB',
+        ink: '#0F172A',
+        'ink-2': '#334155',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'bounce-slow': 'bounce 2s infinite',
-      }
+        'fadeInUp': 'fadeInUp 500ms ease-out',
+        'shimmer': 'shimmer 6s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        shimmer: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+      },
+      backgroundSize: {
+        '200%': '200% 200%',
+      },
     },
   },
   plugins: [],

@@ -9,7 +9,7 @@ import Link from 'next/link';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AudioCourse AI - AI-Powered Learning Podcasts',
+  title: 'AudioCourse AI',
   description: 'Generate and listen to personalized AI-powered podcasts on any topic to accelerate your learning.',
   keywords: ['AI', 'learning', 'podcast', 'education', 'technology', 'courses'],
   authors: [{ name: 'AudioCourse AI Team' }],
@@ -34,7 +34,7 @@ export default function RootLayout({
               <div className="flex justify-between items-center py-4 px-4 sm:px-6 lg:px-8">
                 <div className="w-64 flex justify-start pl-6">
                   <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-700 to-accent-600 rounded-lg flex items-center justify-center">
                       <span className="text-white font-bold text-sm">AC</span>
                     </div>
                     <h1 className="text-xl font-bold text-gray-900">
@@ -52,7 +52,7 @@ export default function RootLayout({
             {children}
           </main>
           
-          <footer className="bg-white/50 border-t border-gray-200 mt-16">
+          <footer className="bg-white/50 border-t border-gray-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="text-center text-sm text-gray-600">
                 <p>© 2025 AudioCourse AI.</p>
