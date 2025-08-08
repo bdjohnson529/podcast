@@ -9,7 +9,7 @@ import Link from 'next/link';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'AudioCourse AI - AI-Powered Learning Podcasts',
+  title: 'AudioCourse AI',
   description: 'Generate and listen to personalized AI-powered podcasts on any topic to accelerate your learning.',
   keywords: ['AI', 'learning', 'podcast', 'education', 'technology', 'courses'],
   authors: [{ name: 'AudioCourse AI Team' }],

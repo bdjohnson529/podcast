@@ -4,6 +4,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { useState } from 'react';
 import Link from 'next/link';
 import { PlayIcon, ClockIcon, StarIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import PublicSamples from '@/components/PublicSamples';
 
 export default function LandingPage() {
   const { user, loading, signInWithGoogle } = useAuth();
@@ -80,6 +81,9 @@ export default function LandingPage() {
                   )}
                 </button>
               </div>
+
+              {/* Public samples player (unauthenticated) */}
+              <PublicSamples />
             </div>
 
             {/* Features */}
