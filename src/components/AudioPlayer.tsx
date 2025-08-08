@@ -312,27 +312,6 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
         </div>
       </div>
 
-      {/* Episode Info */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card text-center">
-          <div className="text-2xl font-bold text-primary-600">
-            {Math.round(duration / 60) || script.estimatedDuration}
-          </div>
-          <div className="text-sm text-gray-600">Minutes</div>
-        </div>
-        <div className="card text-center">
-          <div className="text-2xl font-bold text-green-600">
-            {script.transcript?.length || 0}
-          </div>
-          <div className="text-sm text-gray-600">Dialogue Segments</div>
-        </div>
-        <div className="card text-center">
-          <div className="text-2xl font-bold text-purple-600">
-            {script.monetizationModels?.length || 0}
-          </div>
-          <div className="text-sm text-gray-600">Monetization Models</div>
-        </div>
-      </div>
     </div>
   );
 }
