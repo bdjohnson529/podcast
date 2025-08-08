@@ -133,6 +133,11 @@ export function Library() {
         setDbEpisodes(prev => prev.map(ep => 
           ep.id === episodeId ? { ...ep, visibility: newVisibility } : ep
         ));
+        
+        // Update playing episode state if it's the same episode
+        if (playingEpisode && playingEpisode.id === episodeId) {
+          setPlayingEpisode((prev: any) => ({ ...prev, visibility: newVisibility }));
+        }
       }
     } catch (error) {
       console.error('Failed to toggle visibility:', error);
@@ -212,16 +217,46 @@ export function Library() {
 
     return (
       <div className="bg-white rounded-xl p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => setPlayingEpisode(null)}
-            className="mr-3 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </button>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Now Playing
-          </h3>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <button
+              onClick={() => setPlayingEpisode(null)}
+              className="mr-3 p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </button>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Now Playing
+            </h3>
+          </div>
+          
+          {/* Publish button in playback view */}
+          {session?.user?.id === playingEpisode.user_id && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleShareToggle(playingEpisode.id, playingEpisode.visibility || 'private', e);
+              }}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                playingEpisode.visibility === 'public'
+                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title={playingEpisode.visibility === 'public' ? 'Make private' : 'Publish episode'}
+            >
+              {playingEpisode.visibility === 'public' ? (
+                <>
+                  <LockClosedIcon className="h-4 w-4" />
+                  <span>Make Private</span>
+                </>
+              ) : (
+                <>
+                  <GlobeAltIcon className="h-4 w-4" />
+                  <span>Publish</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
         <AudioPlayer 
           script={script} 
@@ -455,42 +490,55 @@ export function Library() {
                 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-1">
-                  {/* Always show share toggle for owners */}
+                  {/* Publish/Unpublish button for owners */}
                   {isOwner && (
                     <button
                       onClick={(e) => handleShareToggle(episode.id, episode.visibility || 'private', e)}
-                      className={`p-1 transition-colors ${
+                      className={`flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
                         isPublic 
-                          ? 'text-blue-500 hover:text-blue-600' 
-                          : 'text-gray-400 hover:text-blue-500'
+                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
-                      title={isPublic ? 'Make private' : 'Make public'}
+                      title={isPublic ? 'Make private' : 'Publish episode'}
                     >
-                      <ShareIcon className="h-4 w-4" />
+                      {isPublic ? (
+                        <>
+                          <LockClosedIcon className="h-3 w-3" />
+                          <span>Private</span>
+                        </>
+                      ) : (
+                        <>
+                          <GlobeAltIcon className="h-3 w-3" />
+                          <span>Publish</span>
+                        </>
+                      )}
                     </button>
                   )}
                   
-                  {/* Copy link button for public episodes */}
-                  {isPublic && (
-                    <button
-                      onClick={(e) => handleCopyLink(episode.id, e)}
-                      className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
-                      title="Copy public link"
-                    >
-                      <LinkIcon className="h-4 w-4" />
-                    </button>
-                  )}
-                  
-                  {/* Delete button (always visible for owners) */}
-                  {isOwner && (
-                    <button
-                      onClick={(e) => handleDeleteEpisode(episode.id, e)}
-                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                      title="Delete episode"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
-                  )}
+                  {/* Icon action buttons */}
+                  <div className="flex items-center space-x-1">
+                    {/* Copy link button for public episodes */}
+                    {isPublic && (
+                      <button
+                        onClick={(e) => handleCopyLink(episode.id, e)}
+                        className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                        title="Copy public link"
+                      >
+                        <LinkIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                    
+                    {/* Delete button (always visible for owners) */}
+                    {isOwner && (
+                      <button
+                        onClick={(e) => handleDeleteEpisode(episode.id, e)}
+                        className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Delete episode"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
