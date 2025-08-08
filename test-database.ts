@@ -45,6 +45,7 @@ async function testDatabaseConnection() {
         sources: [],
         transcript: [],
         estimatedDuration: 5,
+        wordCount: 0,
         createdAt: new Date().toISOString()
       }
     };

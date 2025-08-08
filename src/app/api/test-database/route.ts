@@ -48,6 +48,7 @@ export async function GET() {
         sources: [],
         transcript: [],
         estimatedDuration: 5,
+        wordCount: 0,
         createdAt: new Date().toISOString()
       }
     };

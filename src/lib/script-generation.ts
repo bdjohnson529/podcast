@@ -37,7 +37,7 @@ SAFETY RULES:
 - Acknowledge limitations and areas of uncertainty honestly
 - Focus on educational value and practical understanding
 
-TARGET DURATION: ${targetDuration} minute${targetDuration !== 1 ? 's' : ''} (roughly ${wordRange} words)
+TARGET DURATION: ${targetDuration} minute${targetDuration !== 1 ? 's' : ''} (transcript should have roughly ${wordRange} words)
 ${targetDuration <= 3 ? 'BRIEF FORMAT: Focus on core concepts and key takeaways only.' : 
   targetDuration <= 8 ? 'STANDARD FORMAT: Cover key concepts with examples and practical applications.' :
   'DETAILED FORMAT: Include comprehensive coverage with multiple examples, case studies, and detailed explanations.'}
@@ -93,7 +93,8 @@ Return a valid JSON object with this exact structure (NO markdown formatting, NO
       "text": "dialogue text"
     }
   ],
-  "estimatedDuration": ${targetDuration}
+  "estimatedDuration": ${targetDuration},
+  "wordCount": 0
 }
 
 IMPORTANT: 
@@ -101,6 +102,7 @@ IMPORTANT:
 - Do NOT wrap in markdown code blocks
 - Ensure all strings are properly escaped
 - No trailing commas
+- The word count of the transcript must be ${targetWords}
 - Valid JSON syntax only`;
   }
 
@@ -238,18 +240,22 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
         }
       }
       
-      // Add metadata
+      // Add metadata and calculate word count
+      const wordCount = this.calculateWordCount(parsedScript.transcript || []);
       const finalScript = {
         ...parsedScript,
         id: this.generateId(),
         createdAt: new Date().toISOString(),
+        wordCount: wordCount,
       };
 
       console.log('🎉 Script generation completed successfully:', {
         id: finalScript.id,
         title: finalScript.title,
         hasTranscript: !!finalScript.transcript,
-        transcriptLength: finalScript.transcript?.length
+        transcriptLength: finalScript.transcript?.length,
+        wordCount: finalScript.wordCount,
+        estimatedDuration: finalScript.estimatedDuration
       });
 
       return finalScript;
@@ -415,6 +421,13 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
     });
     
     return hasAllFields && hasValidTranscript;
+  }
+
+  // Method to calculate total word count from transcript
+  calculateWordCount(transcript: DialogueLine[]): number {
+    return transcript.reduce((acc, line) => {
+      return acc + line.text.trim().split(/\s+/).filter(word => word.length > 0).length;
+    }, 0);
   }
 
   // Method to estimate reading time from transcript

@@ -22,6 +22,7 @@ export interface PodcastScript {
   sources: Source[];
   transcript: DialogueLine[];
   estimatedDuration: number; // in minutes
+  wordCount: number; // total word count of the transcript
   createdAt: string;
 }
 

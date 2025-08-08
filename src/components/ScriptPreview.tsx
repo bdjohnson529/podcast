@@ -33,6 +33,9 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
               <div>
                 {script.transcript?.length || 0} dialogue segments
               </div>
+              <div>
+                {script.wordCount || 0} words
+              </div>
             </div>
           </div>
           <div className="flex space-x-2">
