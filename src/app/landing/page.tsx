@@ -5,44 +5,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { PlayIcon, ClockIcon, StarIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 
-// Sample podcast examples
-const podcastExamples = [
-  {
-    id: 1,
-    title: "AI and Machine Learning Fundamentals",
-    topic: "Introduction to artificial intelligence",
-    duration: "8 min",
-    familiarity: "new",
-    description: "Perfect for beginners wanting to understand AI basics and real-world applications.",
-    keyPoints: ["What is AI?", "Machine Learning vs Deep Learning", "Business Applications", "Future Trends"],
-    rating: 4.9
-  },
-  {
-    id: 2,
-    title: "Sustainable Energy Solutions",
-    topic: "Renewable energy technologies",
-    duration: "12 min",
-    familiarity: "some",
-    description: "Exploring solar, wind, and emerging clean energy technologies for climate action.",
-    keyPoints: ["Solar Panel Efficiency", "Wind Power Innovations", "Energy Storage", "Policy Impact"],
-    rating: 4.8
-  },
-  {
-    id: 3,
-    title: "Modern Investment Strategies",
-    topic: "Personal finance and investing",
-    duration: "10 min",
-    familiarity: "expert",
-    description: "Advanced portfolio management and emerging investment opportunities.",
-    keyPoints: ["Diversification Strategies", "ESG Investing", "Crypto Assets", "Risk Management"],
-    rating: 4.7
-  }
-];
-
 export default function LandingPage() {
   const { user, loading, signInWithGoogle } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
-  const [selectedExample, setSelectedExample] = useState(podcastExamples[0]);
 
   const handleSignIn = async () => {
     setIsSigningIn(true);
@@ -72,26 +37,26 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-purple-50">
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-5xl mx-auto">
           
-          {/* Main Content - Left Side */}
-          <div className="lg:col-span-2">
+          {/* Main Content - Centered */}
+          <div className="">
             {/* Hero Section */}
-            <div className="text-center lg:text-left mb-12">
+            <div className="text-center mb-12">
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
                 Learn Anything with
                 <span className="bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
                   {' '}AI Podcasts
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl">
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
                 Transform any topic into a personalized podcast. Get AI-powered explanations 
                 tailored to your level, with real-world examples and practical insights.
               </p>
               
               {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={handleSignIn}
                   disabled={isSigningIn || loading}
@@ -114,14 +79,6 @@ export default function LandingPage() {
                     </>
                   )}
                 </button>
-                
-                <Link
-                  href="/demo"
-                  className="flex items-center justify-center px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold text-lg hover:border-primary-500 hover:text-primary-600 transition-all"
-                >
-                  Try Demo First
-                  <ArrowRightIcon className="w-5 h-5 ml-2" />
-                </Link>
               </div>
             </div>
 
@@ -149,117 +106,6 @@ export default function LandingPage() {
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">Audio Generation</h3>
                 <p className="text-sm text-gray-600">High-quality AI narration</p>
-              </div>
-            </div>
-
-            {/* Benefits */}
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Why Choose AudioCourse AI?</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Personalized Learning</h4>
-                    <p className="text-gray-600 text-sm">Content adapted to your knowledge level and industry focus</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Save Anywhere</h4>
-                    <p className="text-gray-600 text-sm">Access your episodes across all devices</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Real Examples</h4>
-                    <p className="text-gray-600 text-sm">Practical case studies and applications</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-500 rounded-full mt-2"></div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Quick & Efficient</h4>
-                    <p className="text-gray-600 text-sm">Learn complex topics in minutes, not hours</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar - Podcast Examples */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
-              <div className="p-6 border-b border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Popular Podcast Examples
-                </h3>
-                <p className="text-sm text-gray-600">
-                  See what others are learning about
-                </p>
-              </div>
-
-              {/* Example List */}
-              <div className="divide-y divide-gray-100">
-                {podcastExamples.map((example) => (
-                  <div
-                    key={example.id}
-                    onClick={() => setSelectedExample(example)}
-                    className={`p-4 cursor-pointer transition-colors ${
-                      selectedExample.id === example.id
-                        ? 'bg-primary-50 border-r-2 border-primary-500'
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
-                        {example.title}
-                      </h4>
-                      <div className="flex items-center space-x-1 ml-2 flex-shrink-0">
-                        <StarIcon className="w-3 h-3 text-yellow-400 fill-current" />
-                        <span className="text-xs text-gray-500">{example.rating}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 text-xs text-gray-500 mb-2">
-                      <span className="bg-gray-100 px-2 py-1 rounded">
-                        {example.duration}
-                      </span>
-                      <span className="capitalize">{example.familiarity}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Selected Example Detail */}
-              <div className="p-6 bg-gray-50">
-                <h4 className="font-semibold text-gray-900 mb-2">
-                  {selectedExample.title}
-                </h4>
-                <p className="text-sm text-gray-600 mb-3">
-                  {selectedExample.description}
-                </p>
-                
-                <div className="mb-4">
-                  <h5 className="text-xs font-medium text-gray-900 mb-2">Key Topics:</h5>
-                  <ul className="space-y-1">
-                    {selectedExample.keyPoints.map((point, index) => (
-                      <li key={index} className="text-xs text-gray-600 flex items-start">
-                        <span className="w-1 h-1 bg-gray-400 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <button
-                  onClick={handleSignIn}
-                  disabled={isSigningIn || loading}
-                  className="w-full bg-primary-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
-                >
-                  {isSigningIn ? 'Signing in...' : 'Create Similar Podcast'}
-                </button>
               </div>
             </div>
           </div>
