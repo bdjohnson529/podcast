@@ -34,7 +34,7 @@ export default function RootLayout({
               <div className="flex justify-between items-center py-4 px-4 sm:px-6 lg:px-8">
                 <div className="w-64 flex justify-start pl-6">
                   <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-700 to-accent-600 rounded-lg flex items-center justify-center">
                       <span className="text-white font-bold text-sm">AC</span>
                     </div>
                     <h1 className="text-xl font-bold text-gray-900">
