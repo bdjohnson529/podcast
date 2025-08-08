@@ -166,15 +166,6 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
             <h2 className="text-2xl font-bold text-gray-900">{script.title}</h2>
             <p className="text-gray-600 mt-1">Ready to listen!</p>
           </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={onStartOver}
-              className="btn-secondary flex items-center space-x-2"
-            >
-              <ArrowPathIcon className="h-4 w-4" />
-              <span>Start Over</span>
-            </button>
-          </div>
         </div>
 
         {/* Audio Player */}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { elevenLabsService, DEFAULT_VOICES } from '@/lib/elevenlabs';
 import { supabase } from '@/lib/supabase';
 import { storeAudioBuffer, getAudioBuffer } from '@/lib/audio-cache';
+import { SupabaseAudioStorage } from '@/lib/supabase-storage';
 
 // Simple function to combine multiple audio segments
 // Note: This is a basic concatenation. For production, you'd want proper audio mixing
@@ -41,6 +42,23 @@ export async function POST(request: NextRequest) {
         { error: 'Script ID is required' },
         { status: 400 }
       );
+    }
+
+    // Get user info from auth header
+    const authHeader = request.headers.get('authorization');
+    const accessToken = authHeader?.replace('Bearer ', '');
+    let userId: string | null = null;
+    
+    if (accessToken) {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+        if (!userError && user) {
+          userId = user.id;
+          console.log('👤 Authenticated user ID:', userId);
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not get user from token:', error);
+      }
     }
 
     let script;
@@ -101,10 +119,28 @@ export async function POST(request: NextRequest) {
       originalTotalSize: audioSegments.reduce((sum, buffer) => sum + buffer.byteLength, 0)
     });
     
-    // Store the combined audio buffer in our cache
+    // Store the combined audio buffer in our cache (for immediate access)
     storeAudioBuffer(scriptId, combinedAudio);
     
-    // Immediately test if we can retrieve it (debugging)
+    // Upload to Supabase Storage for persistent storage
+    console.log('☁️ Uploading audio to Supabase Storage...');
+    console.log('🔑 Upload parameters:', { scriptId, userId, hasAudio: !!combinedAudio, audioSize: combinedAudio.byteLength });
+    
+    const uploadResult = await SupabaseAudioStorage.uploadAudio(scriptId, combinedAudio, userId || undefined);
+    
+    console.log('📤 Upload result:', uploadResult);
+    
+    let finalAudioUrl: string;
+    
+    if (uploadResult) {
+      console.log('✅ Audio uploaded to Supabase Storage successfully');
+      finalAudioUrl = uploadResult.publicUrl;
+    } else {
+      console.warn('⚠️ Supabase Storage upload failed, falling back to local cache');
+      finalAudioUrl = `/api/audio/${scriptId}`;
+    }
+    
+    // Immediately test if we can retrieve it from cache (debugging)
     console.log('🧪 Testing immediate cache retrieval...');
     const testRetrieve = getAudioBuffer(scriptId);
     console.log('🧪 Immediate retrieval result:', {
@@ -113,15 +149,13 @@ export async function POST(request: NextRequest) {
       expectedSize: combinedAudio.byteLength
     });
     
-    // Create a temporary audio URL that will serve the first segment
-    const mockAudioUrl = `/api/audio/${scriptId}`;
     const mockDuration = script.estimatedDuration * 60; // Convert to seconds
 
     const audioGeneration = {
       id: `audio_${Date.now()}`,
       scriptId,
       status: 'completed' as const,
-      audioUrl: mockAudioUrl,
+      audioUrl: finalAudioUrl,
       duration: mockDuration,
       createdAt: new Date().toISOString(),
     };

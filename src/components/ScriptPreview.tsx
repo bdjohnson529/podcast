@@ -62,24 +62,7 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver, isGenerati
                   </div>
                 </div>
               </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={onStartOver}
-                  className="btn-secondary flex items-center space-x-2"
-                >
-                  <ArrowPathIcon className="h-4 w-4" />
-                  <span>Start Over</span>
-                </button>
-                <button
-                  onClick={onGenerateAudio}
-                  className="btn-primary flex items-center space-x-2"
-                >
-                  <PlayIcon className="h-4 w-4" />
-                  <span>Generate Audio</span>
-                </button>
-              </div>
             </div>
-            
             <p className="text-gray-600">{script.overview}</p>
           </div>
 

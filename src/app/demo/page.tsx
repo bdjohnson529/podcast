@@ -117,7 +117,7 @@ export default function DemoPage() {
         }`}>
           1
         </div>
-        <span className="font-medium">Create Topic</span>
+        <span className="font-medium">Create Podcast</span>
       </div>
       
       <div className={`w-12 h-0.5 ${currentStep !== 'input' ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
@@ -128,7 +128,7 @@ export default function DemoPage() {
         }`}>
           2
         </div>
-        <span className="font-medium">Review Script</span>
+        <span className="font-medium">Script Preview</span>
       </div>
       
       <div className={`w-12 h-0.5 ${currentStep === 'audio' ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
@@ -139,7 +139,7 @@ export default function DemoPage() {
         }`}>
           3
         </div>
-        <span className="font-medium">Listen & Download</span>
+        <span className="font-medium">Audio Preview</span>
       </div>
     </div>
   );

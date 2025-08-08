@@ -60,11 +60,35 @@ export function SavedEpisodes() {
     }
   };
 
-  const handleDeleteEpisode = (episodeId: string, e: React.MouseEvent) => {
+  const handleDeleteEpisode = async (episodeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    
     // Try to remove from local storage first
     removeSavedEpisode(episodeId);
-    // TODO: Add API call to delete from database
+    
+    // Also delete from database if user is authenticated
+    if (session?.access_token) {
+      try {
+        const headers: Record<string, string> = {
+          'Authorization': `Bearer ${session.access_token}`,
+        };
+        
+        const response = await fetch(`/api/episodes?id=${episodeId}`, {
+          method: 'DELETE',
+          headers
+        });
+        
+        if (response.ok) {
+          // Remove from local state
+          setDbEpisodes(prev => prev.filter(ep => ep.id !== episodeId));
+          console.log('✅ Episode deleted from database');
+        } else {
+          console.warn('⚠️ Failed to delete episode from database');
+        }
+      } catch (error) {
+        console.error('❌ Error deleting episode:', error);
+      }
+    }
   };
 
   // Combine local storage episodes with database episodes

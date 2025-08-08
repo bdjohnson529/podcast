@@ -7,15 +7,18 @@ import { useAuth } from '@/components/AuthProvider';
 import { TopicInput } from '@/components/TopicInput';
 import { ScriptPreview } from '@/components/ScriptPreview';
 import { AudioPlayer } from '@/components/AudioPlayer';
+import { UploadStep } from '@/components/UploadStep';
 import { SavedEpisodes } from '@/components/SavedEpisodes';
 import { LoadingState } from '@/components/LoadingState';
 import { AuthBanner } from '@/components/AuthBanner';
 import toast from 'react-hot-toast';
 
-type AppStep = 'input' | 'script' | 'audio';
+type AppStep = 'input' | 'script' | 'audio' | 'upload';
 
 export default function HomePage() {
   const [currentStep, setCurrentStep] = useState<AppStep>('input');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const { session, user, loading } = useAuth();
   const router = useRouter();
   const {
@@ -197,6 +200,111 @@ export default function HomePage() {
     setCurrentStep('input');
   };
 
+  const handleUploadToSupabase = async () => {
+    if (!currentScript || !currentAudio) {
+      toast.error('No episode to upload');
+      return;
+    }
+
+    console.log('☁️ Starting upload to Supabase...');
+    console.log('📊 Upload data:', {
+      script: { id: currentScript.id, title: currentScript.title },
+      audio: { audioUrl: currentAudio.audioUrl, duration: currentAudio.duration },
+      input: currentInput
+    });
+    
+    setIsUploading(true);
+    setUploadStatus('uploading');
+
+    try {
+      // Prepare headers with auth token if available
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+        console.log('🔐 Including auth token for upload');
+      } else {
+        console.log('👤 Uploading as anonymous user');
+      }
+
+      // Generate a proper UUID for the episode
+      const episodeId = crypto.randomUUID();
+      console.log('🆔 Generated episode ID:', episodeId);
+
+      // Prepare the initial upload payload
+      let finalAudioUrl = currentAudio.audioUrl;
+
+      // If audio is stored in Supabase, we need to copy it to the new episode ID
+      if (currentAudio.audioUrl?.includes('supabase') && session?.access_token) {
+        console.log('📁 Audio is in Supabase storage, copying to new episode ID...');
+        
+        try {
+          // Call our API to copy the audio file
+          const copyResponse = await fetch('/api/copy-audio', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              sourceScriptId: currentScript.id,
+              targetEpisodeId: episodeId
+            }),
+          });
+
+          if (copyResponse.ok) {
+            const copyResult = await copyResponse.json();
+            finalAudioUrl = copyResult.newAudioUrl;
+            console.log('✅ Audio copied successfully:', finalAudioUrl);
+          } else {
+            console.warn('⚠️ Audio copy failed, using original URL');
+          }
+        } catch (copyError) {
+          console.warn('⚠️ Audio copy error:', copyError);
+        }
+      }
+
+      const uploadPayload = {
+        id: episodeId,
+        topic: currentInput.topic,
+        familiarity: currentInput.familiarity,
+        duration: currentInput.duration,
+        script: currentScript,
+        audio_url: finalAudioUrl,
+        audio_duration: currentAudio.duration
+      };
+
+      console.log('📤 Upload payload:', uploadPayload);
+
+      // Upload episode data to Supabase
+      const response = await fetch('/api/episodes', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(uploadPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('❌ Upload error response:', errorData);
+        console.error('❌ Response status:', response.status);
+        throw new Error(`Failed to upload episode to Supabase: ${response.status} ${errorData}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Episode uploaded successfully:', result);
+
+      setUploadStatus('success');
+      setCurrentStep('upload');
+      toast.success('Episode uploaded to Supabase successfully!');
+    } catch (error) {
+      console.error('💥 Upload error:', error);
+      setUploadStatus('error');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload episode';
+      toast.error(errorMessage);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center mb-8">
       <div className="flex items-center space-x-4">
@@ -206,7 +314,7 @@ export default function HomePage() {
           }`}>
             1
           </div>
-          <span className="font-medium">Topic & Details</span>
+          <span className="font-medium">Create New</span>
         </div>
         
         <div className="w-8 h-0.5 bg-gray-300"></div>
@@ -228,7 +336,18 @@ export default function HomePage() {
           }`}>
             3
           </div>
-          <span className="font-medium">Listen & Download</span>
+          <span className="font-medium">Audio Preview</span>
+        </div>
+        
+        <div className="w-8 h-0.5 bg-gray-300"></div>
+        
+        <div className={`flex items-center space-x-2 ${currentStep === 'upload' ? 'text-primary-600' : 'text-gray-400'}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            currentStep === 'upload' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
+            4
+          </div>
+          <span className="font-medium">Publish</span>
         </div>
       </div>
     </div>
@@ -291,6 +410,19 @@ export default function HomePage() {
               />
             </div>
           )}
+
+          {/* Step 4 */}
+          {currentStep === 'upload' && currentScript && currentAudio && (
+            <UploadStep
+              script={currentScript}
+              audio={currentAudio}
+              input={currentInput}
+              uploadStatus={uploadStatus}
+              isUploading={isUploading}
+              onUpload={handleUploadToSupabase}
+              onStartOver={handleStartOver}
+            />
+          )}
         </div>
 
         {/* Attached Footer Navigation */}
@@ -301,6 +433,7 @@ export default function HomePage() {
               onClick={() => {
                 if (currentStep === 'script') setCurrentStep('input');
                 if (currentStep === 'audio') setCurrentStep('script');
+                if (currentStep === 'upload') setCurrentStep('audio');
               }}
               disabled={currentStep === 'input'}
               className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
@@ -316,29 +449,36 @@ export default function HomePage() {
                 <div className="text-sm">
                   {currentStep === 'script' && 'Edit Topic'}
                   {currentStep === 'audio' && 'Review Script'}
+                  {currentStep === 'upload' && 'Back to Audio'}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {currentStep === 'script' && 'Change your learning focus'}
+                  {currentStep === 'audio' && 'Make final adjustments'}
+                  {currentStep === 'upload' && 'Listen again'}
                 </div>
               </div>
             </button>
-
-
 
             {/* Next Button */}
             <button
               onClick={() => {
                 if (currentStep === 'input') handleGenerateScript();
                 if (currentStep === 'script') handleGenerateAudio();
+                if (currentStep === 'audio') setCurrentStep('upload');
               }}
               disabled={
                 (currentStep === 'input' && !currentInput.topic.trim()) ||
                 (currentStep === 'script' && !currentScript) ||
-                currentStep === 'audio' ||
+                (currentStep === 'audio' && !currentAudio) ||
+                currentStep === 'upload' ||
                 isGeneratingScript ||
                 isGeneratingAudio
               }
               className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
                 (currentStep === 'input' && !currentInput.topic.trim()) ||
                 (currentStep === 'script' && !currentScript) ||
-                currentStep === 'audio' ||
+                (currentStep === 'audio' && !currentAudio) ||
+                currentStep === 'upload' ||
                 isGeneratingScript ||
                 isGeneratingAudio
                   ? 'text-gray-400 cursor-not-allowed bg-gray-100'
@@ -349,10 +489,11 @@ export default function HomePage() {
                 <div className="text-sm">
                   {currentStep === 'input' && 'Generate Script'}
                   {currentStep === 'script' && 'Create Audio'}
-                  {currentStep === 'audio' && 'Complete'}
+                  {currentStep === 'audio' && 'Go to Upload'}
+                  {currentStep === 'upload' && 'Complete'}
                 </div>
               </div>
-              {currentStep !== 'audio' && (
+              {currentStep !== 'upload' && (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
