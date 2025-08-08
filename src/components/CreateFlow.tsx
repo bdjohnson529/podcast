@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/components/AuthProvider';
 import { TopicInput } from '@/components/TopicInput';
+import { ContextChat } from '@/components/ContextChat';
 import { ScriptPreview } from '@/components/ScriptPreview';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { UploadStep } from '@/components/UploadStep';
 import toast from 'react-hot-toast';
 
-export type AppStep = 'input' | 'script' | 'audio' | 'upload';
+export type AppStep = 'input' | 'context' | 'script' | 'audio' | 'upload';
 
 export function CreateFlow() {
   const [currentStep, setCurrentStep] = useState<AppStep>('input');
@@ -22,12 +23,34 @@ export function CreateFlow() {
     currentAudio,
     isGeneratingScript,
     isGeneratingAudio,
+    setCurrentInput,
     setCurrentScript,
     setCurrentAudio,
     setIsGeneratingScript,
     setIsGeneratingAudio,
     resetCurrentSession,
   } = useAppStore();
+
+  const handleProceedToContext = () => {
+    if (!currentInput.topic.trim()) {
+      toast.error('Please enter a topic');
+      return;
+    }
+    setCurrentStep('context');
+  };
+
+  const handleContextComplete = (context: string) => {
+    setCurrentInput({ context });
+    setCurrentStep('script');
+    // Auto-generate script after context is complete
+    setTimeout(() => {
+      handleGenerateScript();
+    }, 500);
+  };
+
+  const handleSkipContext = () => {
+    setCurrentStep('script');
+  };
 
   const handleGenerateScript = async () => {
     if (!currentInput.topic.trim()) {
@@ -210,7 +233,18 @@ export function CreateFlow() {
           }`}>
             1
           </div>
-          <span className="font-medium">Create New</span>
+          <span className="font-medium">Topic</span>
+        </div>
+        
+        <div className="w-8 h-0.5 bg-gray-300"></div>
+        
+        <div className={`flex items-center space-x-2 ${currentStep === 'context' ? 'text-primary-600' : 'text-gray-400'}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+            currentStep === 'context' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
+          }`}>
+            2
+          </div>
+          <span className="font-medium">Context</span>
         </div>
         
         <div className="w-8 h-0.5 bg-gray-300"></div>
@@ -219,9 +253,9 @@ export function CreateFlow() {
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
             currentStep === 'script' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
           }`}>
-            2
+            3
           </div>
-          <span className="font-medium">Script Preview</span>
+          <span className="font-medium">Script</span>
         </div>
         
         <div className="w-8 h-0.5 bg-gray-300"></div>
@@ -230,9 +264,9 @@ export function CreateFlow() {
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
             currentStep === 'audio' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
           }`}>
-            3
+            4
           </div>
-          <span className="font-medium">Audio Preview</span>
+          <span className="font-medium">Audio</span>
         </div>
         
         <div className="w-8 h-0.5 bg-gray-300"></div>
@@ -241,7 +275,7 @@ export function CreateFlow() {
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
             currentStep === 'upload' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-600'
           }`}>
-            4
+            5
           </div>
           <span className="font-medium">Publish</span>
         </div>
@@ -255,7 +289,31 @@ export function CreateFlow() {
         {renderStepIndicator()}
 
         {currentStep === 'input' && (
-          <TopicInput onGenerate={handleGenerateScript} />
+          <TopicInput onGenerate={handleProceedToContext} />
+        )}
+
+        {currentStep === 'context' && (
+          <ContextChat 
+            onComplete={handleContextComplete}
+            onSkip={handleSkipContext}
+          />
+        )}
+
+        {currentStep === 'script' && !currentScript && isGeneratingScript && (
+          <div className="text-center py-12">
+            <div className="mb-6">
+              <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Generating Your Personalized Podcast Script
+              </h2>
+              <p className="text-gray-600">
+                Using your context to create a targeted learning experience for &ldquo;{currentInput.topic}&rdquo;
+              </p>
+            </div>
+            <div className="mt-6 text-xs text-gray-400">
+              This typically takes 30-60 seconds
+            </div>
+          </div>
         )}
 
         {currentStep === 'script' && currentScript && (
@@ -294,7 +352,8 @@ export function CreateFlow() {
         <div className="flex justify-between items-center">
           <button
             onClick={() => {
-              if (currentStep === 'script') setCurrentStep('input');
+              if (currentStep === 'context') setCurrentStep('input');
+              if (currentStep === 'script') setCurrentStep('context');
               if (currentStep === 'audio') setCurrentStep('script');
               if (currentStep === 'upload') setCurrentStep('audio');
             }}
@@ -310,12 +369,14 @@ export function CreateFlow() {
             </svg>
             <div className="text-left">
               <div className="text-sm">
-                {currentStep === 'script' && 'Edit Topic'}
+                {currentStep === 'context' && 'Edit Topic'}
+                {currentStep === 'script' && 'Change Context'}
                 {currentStep === 'audio' && 'Review Script'}
                 {currentStep === 'upload' && 'Back to Audio'}
               </div>
               <div className="text-xs text-gray-500">
-                {currentStep === 'script' && 'Change your learning focus'}
+                {currentStep === 'context' && 'Change your learning focus'}
+                {currentStep === 'script' && 'Modify context and goals'}
                 {currentStep === 'audio' && 'Make final adjustments'}
                 {currentStep === 'upload' && 'Listen again'}
               </div>
@@ -324,7 +385,8 @@ export function CreateFlow() {
 
           <button
             onClick={() => {
-              if (currentStep === 'input') handleGenerateScript();
+              if (currentStep === 'input') handleProceedToContext();
+              if (currentStep === 'context') handleSkipContext();
               if (currentStep === 'script') handleGenerateAudio();
               if (currentStep === 'audio') setCurrentStep('upload');
             }}
@@ -349,7 +411,8 @@ export function CreateFlow() {
           >
             <div className="text-right">
               <div className="text-sm">
-                {currentStep === 'input' && 'Generate Script'}
+                {currentStep === 'input' && 'Continue to Context'}
+                {currentStep === 'context' && 'Skip to Script'}
                 {currentStep === 'script' && 'Create Audio'}
                 {currentStep === 'audio' && 'Go to Upload'}
                 {currentStep === 'upload' && 'Complete'}

@@ -107,13 +107,27 @@ IMPORTANT:
   }
 
   private getUserPrompt(input: PodcastInput): string {
-    return `Generate an educational podcast script about: ${input.topic}
+    let prompt = `Generate an educational podcast script about: ${input.topic}
 
 User Context:
 - Familiarity level: ${input.familiarity === 'new' ? 'New to this topic' : input.familiarity === 'some' ? 'Some background knowledge' : 'Expert level'}
-- Target duration: ${input.duration} minute${input.duration !== 1 ? 's' : ''}
+- Target duration: ${input.duration} minute${input.duration !== 1 ? 's' : ''}`;
+
+    // Add personalized context if available
+    if (input.context && input.context.trim()) {
+      prompt += `
+
+Additional Context from User:
+${input.context}
+
+Please use this context to personalize the podcast content to the user's specific needs, goals, and interests.`;
+    }
+
+    prompt += `
 
 Make sure CHRIS and JESSICA have distinct voices and naturally build on each other's points. Include practical examples and actionable insights for learning. Adjust the depth and number of examples based on the target duration - shorter episodes should focus on core concepts, while longer episodes can explore more examples and nuances.`;
+
+    return prompt;
   }
 
   async generateScript(input: PodcastInput): Promise<PodcastScript> {

@@ -3,6 +3,19 @@ export interface PodcastInput {
   topic: string;
   familiarity: 'new' | 'some' | 'expert';
   duration: number; // in minutes, 1-15
+  context?: string; // Additional context from chat
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface ChatSession {
+  messages: ChatMessage[];
+  isComplete: boolean;
 }
 
 export interface Industry {

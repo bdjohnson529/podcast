@@ -32,6 +32,7 @@ const defaultInput: PodcastInput = {
   topic: '',
   familiarity: 'some',
   duration: 8, // Default to 8 minutes
+  context: '',
 };
 
 export const useAppStore = create<AppState>((set, get) => ({
