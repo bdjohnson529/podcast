@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
-import { SavedEpisodes } from '@/components/SavedEpisodes';
+import { Library } from '@/components/Library';
 import { AuthBanner } from '@/components/AuthBanner';
 import { CreateFlow } from '@/components/CreateFlow';
 import { Sidebar } from '@/components/Sidebar';
@@ -59,7 +59,7 @@ export default function HomePage() {
           {activeTab === 'episodes' && (
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-6">
-                <SavedEpisodes />
+<Library />
               </div>
             </div>
           )}

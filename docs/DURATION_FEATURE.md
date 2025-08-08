@@ -30,7 +30,7 @@ Added the ability for users to customize podcast length from 1 to 15 minutes usi
 
 ### 5. State Management
 - **`src/lib/store.ts`**: Updated default input to include duration (8 minutes default)
-- **`src/components/SavedEpisodes.tsx`**: Display both target and estimated duration
+- **`src/components/Library.tsx`**: Display both target and estimated duration
 
 ## User Experience
 

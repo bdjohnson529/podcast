@@ -100,7 +100,7 @@ src/
 │   ├── TopicInput.tsx    # Input form
 │   ├── ScriptPreview.tsx # Script display
 │   ├── AudioPlayer.tsx   # Audio playback
-│   ├── SavedEpisodes.tsx # Episode history
+│   ├── Library.tsx       # Library (saved episodes)
 │   └── LoadingState.tsx  # Loading indicators
 ├── lib/                  # Core services
 │   ├── supabase.ts      # Database client

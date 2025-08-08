@@ -40,7 +40,7 @@ src/
 │   ├── TopicInput.tsx     # User input form
 │   ├── ScriptPreview.tsx  # Generated script display
 │   ├── AudioPlayer.tsx    # Audio playback interface
-│   ├── SavedEpisodes.tsx  # Episode history sidebar
+│   ├── Library.tsx       # Library (saved episodes)
 │   └── LoadingState.tsx   # Loading animations
 ├── lib/                   # Core business logic
 │   ├── supabase.ts       # Database client configuration
