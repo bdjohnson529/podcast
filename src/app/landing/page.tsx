@@ -55,9 +55,12 @@ export default function LandingPage() {
                 Transform any topic into a personalized podcast. Get AI-powered explanations 
                 tailored to your level, with real-world examples and practical insights.
               </p>
-              
+
+              {/* Public samples player (unauthenticated) */}
+              <PublicSamples />
+
               {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                 <button
                   onClick={handleSignIn}
                   disabled={isSigningIn || loading}
@@ -82,8 +85,6 @@ export default function LandingPage() {
                 </button>
               </div>
 
-              {/* Public samples player (unauthenticated) */}
-              <PublicSamples />
             </div>
 
             {/* Features */}

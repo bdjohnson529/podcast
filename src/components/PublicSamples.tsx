@@ -152,7 +152,7 @@ export default function PublicSamples() {
 
   return (
     <div className="mt-6 max-w-2xl mx-auto">
-      <div className="bg-white/90 backdrop-blur rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="bg-purple-100/90 backdrop-blur rounded-xl border border-purple-300 shadow-sm p-4">
         {/* Title and selector */}
         <div className="flex items-center justify-center mb-2">
           <p className="text-s text-gray-500 text-center font-bold">{selected?.script?.title || 'Public episode'}</p>
