@@ -87,8 +87,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (error) {
         throw error;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing out:', error);
+      
+      // If it's an AuthSessionMissingError, just clear local state
+      if (error.message?.includes('Auth session missing')) {
+        console.log('No session to sign out from, clearing local state');
+        setUser(null);
+        setSession(null);
+        return; // Don't throw the error, just return successfully
+      }
+      
       throw error;
     }
   };
