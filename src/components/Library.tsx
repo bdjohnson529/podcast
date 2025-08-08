@@ -489,13 +489,6 @@ export function Library() {
                         <span>Public</span>
                       </div>
                     )}
-                    
-                    {hasAudio && (
-                      <div className="flex items-center space-x-1 text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                        <PlayIcon className="h-3 w-3" />
-                        <span className="text-xs font-medium">Ready to Play</span>
-                      </div>
-                    )}
                   </div>
                   
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">
@@ -522,30 +515,7 @@ export function Library() {
                 
                 {/* Action Buttons */}
                 <div className="flex items-center space-x-1">
-                  {/* Publish/Unpublish button for owners */}
-                  {isOwner && (
-                    <button
-                      onClick={(e) => handleShareToggle(episode.id, episode.visibility || 'private', e)}
-                      className={`flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        isPublic 
-                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                      title={isPublic ? 'Make private' : 'Publish episode'}
-                    >
-                      {isPublic ? (
-                        <>
-                          <LockClosedIcon className="h-3 w-3" />
-                          <span>Private</span>
-                        </>
-                      ) : (
-                        <>
-                          <GlobeAltIcon className="h-3 w-3" />
-                          <span>Publish</span>
-                        </>
-                      )}
-                    </button>
-                  )}
+
                   
                   {/* Icon action buttons */}
                   <div className="flex items-center space-x-1">
