@@ -111,8 +111,19 @@ export function Library() {
   const handleShareToggle = async (episodeId: string, currentVisibility: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    if (!session?.access_token) return;
+    if (!session?.access_token) {
+      console.error('No access token available');
+      return;
+    }
     
+    console.log('🔄 Toggle visibility:', {
+      episodeId,
+      currentVisibility,
+      newVisibility: currentVisibility === 'private' ? 'public' : 'private',
+      sessionUserId: session?.user?.id,
+      playingEpisodeUserId: playingEpisode?.user_id
+    });
+
     try {
       const newVisibility = currentVisibility === 'private' ? 'public' : 'private';
       
@@ -128,7 +139,15 @@ export function Library() {
         })
       });
       
+      console.log('📡 API Response:', {
+        status: response.status,
+        ok: response.ok
+      });
+
       if (response.ok) {
+        const responseData = await response.json();
+        console.log('✅ Success:', responseData);
+        
         // Update local state
         setDbEpisodes(prev => prev.map(ep => 
           ep.id === episodeId ? { ...ep, visibility: newVisibility } : ep
@@ -138,9 +157,12 @@ export function Library() {
         if (playingEpisode && playingEpisode.id === episodeId) {
           setPlayingEpisode((prev: any) => ({ ...prev, visibility: newVisibility }));
         }
+      } else {
+        const errorData = await response.json();
+        console.error('❌ API Error:', errorData);
       }
     } catch (error) {
-      console.error('Failed to toggle visibility:', error);
+      console.error('❌ Failed to toggle visibility:', error);
     }
   };
   
@@ -231,32 +253,42 @@ export function Library() {
           </div>
           
           {/* Publish button in playback view */}
-          {session?.user?.id === playingEpisode.user_id && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleShareToggle(playingEpisode.id, playingEpisode.visibility || 'private', e);
-              }}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                playingEpisode.visibility === 'public'
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-              title={playingEpisode.visibility === 'public' ? 'Make private' : 'Publish episode'}
-            >
-              {playingEpisode.visibility === 'public' ? (
-                <>
-                  <LockClosedIcon className="h-4 w-4" />
-                  <span>Make Private</span>
-                </>
-              ) : (
-                <>
-                  <GlobeAltIcon className="h-4 w-4" />
-                  <span>Publish</span>
-                </>
-              )}
-            </button>
-          )}
+          {(() => {
+            const isOwner = session?.user?.id === playingEpisode.user_id;
+            console.log('🔍 Ownership check in playback:', {
+              sessionUserId: session?.user?.id,
+              episodeUserId: playingEpisode.user_id,
+              isOwner,
+              playingEpisode
+            });
+            
+            return isOwner && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareToggle(playingEpisode.id, playingEpisode.visibility || 'private', e);
+                }}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  playingEpisode.visibility === 'public'
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                title={playingEpisode.visibility === 'public' ? 'Make private' : 'Publish episode'}
+              >
+                {playingEpisode.visibility === 'public' ? (
+                  <>
+                    <LockClosedIcon className="h-4 w-4" />
+                    <span>Make Private</span>
+                  </>
+                ) : (
+                  <>
+                    <GlobeAltIcon className="h-4 w-4" />
+                    <span>Publish</span>
+                  </>
+                )}
+              </button>
+            );
+          })()}
         </div>
         <AudioPlayer 
           script={script} 
