@@ -99,8 +99,6 @@ export async function POST(request: NextRequest) {
           user_id: userId,
           topic: input.topic,
           familiarity: input.familiarity,
-          industries: input.industries.map(i => i.name),
-          use_case: input.useCase || null,
           duration: input.duration,
           script: script,
         })

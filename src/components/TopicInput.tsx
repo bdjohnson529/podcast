@@ -1,9 +1,6 @@
 'use client';
 
-import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
-import { Industry } from '@/types';
-import { ChevronDownIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface TopicInputProps {
   onGenerate: () => void;
@@ -12,34 +9,9 @@ interface TopicInputProps {
 export function TopicInput({ onGenerate }: TopicInputProps) {
   const {
     currentInput,
-    availableIndustries,
     setCurrentInput,
     isGeneratingScript,
   } = useAppStore();
-
-  const [isIndustryDropdownOpen, setIsIndustryDropdownOpen] = useState(false);
-
-  const handleIndustryToggle = (industry: Industry) => {
-    const industries = currentInput.industries || [];
-    const isSelected = industries.some(i => i.id === industry.id);
-    
-    if (isSelected) {
-      setCurrentInput({
-        industries: industries.filter(i => i.id !== industry.id),
-      });
-    } else {
-      setCurrentInput({
-        industries: [...industries, industry],
-      });
-    }
-  };
-
-  const removeIndustry = (industryId: string) => {
-    const industries = currentInput.industries || [];
-    setCurrentInput({
-      industries: industries.filter(i => i.id !== industryId),
-    });
-  };
 
   const isFormValid = currentInput.topic.trim().length > 0;
 
@@ -70,7 +42,7 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
             disabled={isGeneratingScript}
           />
           <p className="mt-1 text-sm text-gray-500">
-            Enter any AI technology, model, or capability you want to explore
+            Enter any topic you want to explore and learn about
           </p>
         </div>
 
@@ -131,88 +103,6 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
           </p>
         </div>
 
-        {/* Focus Areas */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Focus Areas (Optional)
-          </label>
-          
-          {/* Selected Focus Areas */}
-          {(currentInput.industries?.length || 0) > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {(currentInput.industries || []).map((industry) => (
-                <span
-                  key={industry.id}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-100 text-primary-800"
-                >
-                  {industry.name}
-                  <button
-                    type="button"
-                    onClick={() => removeIndustry(industry.id)}
-                    disabled={isGeneratingScript}
-                    className="ml-2 hover:text-primary-600"
-                  >
-                    <XMarkIcon className="h-4 w-4" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Industry Dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsIndustryDropdownOpen(!isIndustryDropdownOpen)}
-              disabled={isGeneratingScript}
-              className="input-field flex items-center justify-between"
-            >
-              <span className="text-gray-500">Select focus areas</span>
-              <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-            </button>
-            
-            {isIndustryDropdownOpen && (
-              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                {availableIndustries.map((industry) => {
-                  const isSelected = currentInput.industries.some(i => i.id === industry.id);
-                  return (
-                    <button
-                      key={industry.id}
-                      type="button"
-                      onClick={() => handleIndustryToggle(industry)}
-                      className={`w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center justify-between ${
-                        isSelected ? 'bg-primary-50 text-primary-700' : ''
-                      }`}
-                    >
-                      <span>{industry.name}</span>
-                      {isSelected && <PlusIcon className="h-4 w-4 rotate-45" />}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Use Case */}
-        <div>
-          <label htmlFor="useCase" className="block text-sm font-medium text-gray-700 mb-2">
-            Specific Use Case (Optional)
-          </label>
-          <textarea
-            id="useCase"
-            value={currentInput.useCase || ''}
-            onChange={(e) => setCurrentInput({ useCase: e.target.value })}
-            placeholder="e.g., Automated customer service for e-commerce platforms"
-            rows={3}
-            className="input-field resize-none"
-            disabled={isGeneratingScript}
-          />
-          <p className="mt-1 text-sm text-gray-500">
-            Describe a specific application or use case you&apos;re interested in
-          </p>
-        </div>
-
         {/* Generate Button */}
         <div className="pt-4">
           <button
@@ -233,7 +123,7 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
           
           {!isFormValid && (
             <p className="mt-2 text-sm text-red-600">
-              Please enter an AI topic to continue
+              Please enter a topic to continue
             </p>
           )}
 

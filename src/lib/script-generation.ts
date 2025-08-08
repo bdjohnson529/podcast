@@ -111,21 +111,11 @@ IMPORTANT:
   }
 
   private getUserPrompt(input: PodcastInput): string {
-    const industriesText = input.industries.length > 0 
-      ? `Consider applications or examples in these areas: ${input.industries.map(i => i.name).join(', ')}.`
-      : '';
-    
-    const useCaseText = input.useCase 
-      ? `Pay special attention to this specific context: ${input.useCase}.`
-      : '';
-
     return `Generate an educational podcast script about: ${input.topic}
 
 User Context:
 - Familiarity level: ${input.familiarity === 'new' ? 'New to this topic' : input.familiarity === 'some' ? 'Some background knowledge' : 'Expert level'}
 - Target duration: ${input.duration} minute${input.duration !== 1 ? 's' : ''}
-- ${industriesText}
-- ${useCaseText}
 
 Make sure CHRIS and JESSICA have distinct voices and naturally build on each other's points. Include practical examples and actionable insights for learning. Adjust the depth and number of examples based on the target duration - shorter episodes should focus on core concepts, while longer episodes can explore more examples and nuances.`;
   }
@@ -134,8 +124,7 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
     console.log('🔧 ScriptGenerationService.generateScript called with:', {
       topic: input.topic,
       familiarity: input.familiarity,
-      industriesCount: input.industries.length,
-      hasUseCase: !!input.useCase
+      duration: input.duration
     });
 
     try {

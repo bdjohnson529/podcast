@@ -7,8 +7,6 @@ CREATE TABLE IF NOT EXISTS episodes (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   topic TEXT NOT NULL,
   familiarity TEXT NOT NULL CHECK (familiarity IN ('new', 'some', 'expert')),
-  industries TEXT[] DEFAULT '{}',
-  use_case TEXT,
   duration INTEGER NOT NULL DEFAULT 8 CHECK (duration >= 1 AND duration <= 15), -- target duration in minutes
   script JSONB NOT NULL,
   audio_url TEXT,

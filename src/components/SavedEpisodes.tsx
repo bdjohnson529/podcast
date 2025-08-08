@@ -49,8 +49,6 @@ export function SavedEpisodes() {
         input: {
           topic: episode.topic,
           familiarity: episode.familiarity,
-          industries: episode.industries?.map((name: string) => ({ id: name.toLowerCase(), name })) || [],
-          useCase: episode.use_case || '',
           duration: episode.duration || 8
         },
         script: episode.script,
@@ -181,24 +179,6 @@ export function SavedEpisodes() {
                 <TrashIcon className="h-4 w-4" />
               </button>
             </div>
-
-            {((episode.input?.industries || episode.industries)?.length || 0) > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {(episode.input?.industries || episode.industries || []).slice(0, 3).map((industry: any, index: number) => (
-                  <span
-                    key={industry.id || industry || index}
-                    className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
-                  >
-                    {industry.name || industry}
-                  </span>
-                ))}
-                {((episode.input?.industries || episode.industries)?.length || 0) > 3 && (
-                  <span className="text-xs text-gray-400">
-                    +{((episode.input?.industries || episode.industries)?.length || 0) - 3} more
-                  </span>
-                )}
-              </div>
-            )}
           </div>
         ))}
       </div>

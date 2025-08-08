@@ -28,8 +28,6 @@ export async function GET() {
       topic: 'Database Connection Test',
       familiarity: 'some' as const,
       duration: 5,
-      industries: ['Technology'],
-      use_case: 'Testing database functionality',
       script: {
         id: 'test-id',
         title: 'Test Episode',

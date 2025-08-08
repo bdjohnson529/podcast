@@ -31,9 +31,9 @@ export default function AuthPage() {
   if (user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 pt-4 pb-8">
           {/* Header */}
-          <div className="flex items-center mb-8">
+          <div className="flex items-center mb-6">
             <Link 
               href="/"
               className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
@@ -44,7 +44,7 @@ export default function AuthPage() {
           </div>
 
           {/* User Profile Card */}
-          <div className="max-w-md mx-auto">
+          <div className="max-w-md mx-auto mt-4">
             <div className="bg-white rounded-xl shadow-lg p-8 text-center">
               <div className="mb-6">
                 {user.user_metadata?.avatar_url ? (
@@ -159,7 +159,7 @@ export default function AuthPage() {
           </Link>
           
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome to PodcastAI
+            Sign in to PodcastAI
           </h1>
           <p className="text-gray-600">
             Sign in to save your episodes and access them anywhere
@@ -200,20 +200,6 @@ export default function AuthPage() {
           <p className="text-xs text-gray-500 text-center mt-6">
             By signing in, you agree to our Terms of Service and Privacy Policy.
             <br />
-            <span className="font-medium">No account creation required - just use your Google account!</span>
-          </p>
-        </div>
-
-        {/* Alternative */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
-            Want to try without signing in?{' '}
-            <Link href="/" className="text-primary-600 hover:text-primary-500 font-medium">
-              Continue as guest
-            </Link>
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            (Episodes will only be saved locally)
           </p>
         </div>
       </div>

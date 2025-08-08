@@ -13,7 +13,6 @@ const podcastExamples = [
     topic: "Introduction to artificial intelligence",
     duration: "8 min",
     familiarity: "new",
-    industries: ["Technology", "Business"],
     description: "Perfect for beginners wanting to understand AI basics and real-world applications.",
     keyPoints: ["What is AI?", "Machine Learning vs Deep Learning", "Business Applications", "Future Trends"],
     rating: 4.9
@@ -24,7 +23,6 @@ const podcastExamples = [
     topic: "Renewable energy technologies",
     duration: "12 min",
     familiarity: "some",
-    industries: ["Environment", "Engineering"],
     description: "Exploring solar, wind, and emerging clean energy technologies for climate action.",
     keyPoints: ["Solar Panel Efficiency", "Wind Power Innovations", "Energy Storage", "Policy Impact"],
     rating: 4.8
@@ -35,7 +33,6 @@ const podcastExamples = [
     topic: "Personal finance and investing",
     duration: "10 min",
     familiarity: "expert",
-    industries: ["Finance", "Economics"],
     description: "Advanced portfolio management and emerging investment opportunities.",
     keyPoints: ["Diversification Strategies", "ESG Investing", "Crypto Assets", "Risk Management"],
     rating: 4.7
@@ -230,17 +227,6 @@ export default function LandingPage() {
                         {example.duration}
                       </span>
                       <span className="capitalize">{example.familiarity}</span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1">
-                      {example.industries.slice(0, 2).map((industry) => (
-                        <span
-                          key={industry}
-                          className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded"
-                        >
-                          {industry}
-                        </span>
-                      ))}
                     </div>
                   </div>
                 ))}

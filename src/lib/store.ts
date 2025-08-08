@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PodcastInput, PodcastScript, AudioGeneration, SavedEpisode, Industry } from '@/types';
+import { PodcastInput, PodcastScript, AudioGeneration, SavedEpisode } from '@/types';
 
 interface AppState {
   // Current session state
@@ -14,9 +14,6 @@ interface AppState {
   
   // Saved episodes
   savedEpisodes: SavedEpisode[];
-  
-  // Available industries
-  availableIndustries: Industry[];
   
   // Actions
   setCurrentInput: (input: Partial<PodcastInput>) => void;
@@ -34,25 +31,8 @@ interface AppState {
 const defaultInput: PodcastInput = {
   topic: '',
   familiarity: 'some',
-  industries: [],
-  useCase: '',
   duration: 8, // Default to 8 minutes
 };
-
-const defaultIndustries: Industry[] = [
-  { id: 'technology', name: 'Technology' },
-  { id: 'science', name: 'Science' },
-  { id: 'business', name: 'Business' },
-  { id: 'history', name: 'History' },
-  { id: 'arts', name: 'Arts & Culture' },
-  { id: 'health', name: 'Health & Medicine' },
-  { id: 'environment', name: 'Environment' },
-  { id: 'psychology', name: 'Psychology' },
-  { id: 'philosophy', name: 'Philosophy' },
-  { id: 'economics', name: 'Economics' },
-  { id: 'education', name: 'Education' },
-  { id: 'other', name: 'Other' },
-];
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Initial state
@@ -63,7 +43,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   isGeneratingAudio: false,
   audioPlaybackSpeed: 1.0,
   savedEpisodes: [],
-  availableIndustries: defaultIndustries,
 
   // Actions
   setCurrentInput: (input) =>
@@ -130,8 +109,6 @@ export const useAppStore = create<AppState>((set, get) => ({
             id: episode.id,
             topic: episode.input.topic,
             familiarity: episode.input.familiarity,
-            industries: episode.input.industries?.map(i => i.name) || [],
-            use_case: episode.input.useCase,
             duration: episode.input.duration,
             script: episode.script,
             audio_url: episode.audio?.audioUrl,

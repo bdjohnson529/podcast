@@ -2,8 +2,6 @@
 export interface PodcastInput {
   topic: string;
   familiarity: 'new' | 'some' | 'expert';
-  industries: Industry[];
-  useCase?: string;
   duration: number; // in minutes, 1-15
 }
 
@@ -126,8 +124,6 @@ export interface Database {
           user_id?: string;
           topic: string;
           familiarity: string;
-          industries: string[];
-          use_case?: string;
           duration: number;
           script: any; // JSON
           audio_url?: string;
@@ -140,8 +136,6 @@ export interface Database {
           user_id?: string;
           topic: string;
           familiarity: string;
-          industries: string[];
-          use_case?: string;
           duration: number;
           script: any;
           audio_url?: string;
@@ -154,8 +148,6 @@ export interface Database {
           user_id?: string;
           topic?: string;
           familiarity?: string;
-          industries?: string[];
-          use_case?: string;
           duration?: number;
           script?: any;
           audio_url?: string;
