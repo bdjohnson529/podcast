@@ -148,37 +148,14 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
       <div className="max-w-md w-full mx-auto px-4 pt-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link 
-            href="/"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors mb-6"
-          >
-            <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Back to Podcast Generator
-          </Link>
-          
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Sign in to PodcastAI
-          </h1>
-          <p className="text-gray-600">
-            Sign in to save your episodes and access them anywhere
-          </p>
-        </div>
-
         {/* Sign In Card */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 9.74s9-4.19 9-9.74V7l-10-5z"/>
-              </svg>
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Get Started
-            </h2>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Log in to AudioCourse AI
+            </h1>
             <p className="text-gray-600 text-sm">
-              Sign in with your Google account to unlock all features
+              Sign up or log in with your Google account
             </p>
           </div>
 
