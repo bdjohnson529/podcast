@@ -82,28 +82,28 @@ export default function LandingPage() {
 
           {/* Features */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-            <div className="rounded-2xl border border-ink/5 bg-white hover:bg-white/90 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-6">
-              <div className="size-10 rounded-xl bg-gradient-to-br from-accent/20 to-sky/20 flex items-center justify-center">
-                <ClockIcon className="w-5 h-5 text-primary" />
+            <div className="rounded-2xl bg-blue-50 p-6 text-center">
+              <div className="w-16 h-16 rounded-lg bg-blue-100 flex items-center justify-center mx-auto">
+                <ClockIcon className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="mt-4 font-semibold text-ink">Custom Duration</h3>
-              <p className="mt-1 text-sm text-ink-2">1-15 minutes tailored to your schedule</p>
+              <h3 className="mt-4 font-semibold text-gray-900">Custom Duration</h3>
+              <p className="mt-1 text-sm text-gray-600">1-15 minutes tailored to your schedule</p>
             </div>
             
-            <div className="rounded-2xl border border-ink/5 bg-white hover:bg-white/90 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-6">
-              <div className="size-10 rounded-xl bg-gradient-to-br from-accent/20 to-sky/20 flex items-center justify-center">
-                <StarIcon className="w-5 h-5 text-accent" />
+            <div className="rounded-2xl bg-green-50 p-6 text-center">
+              <div className="w-16 h-16 rounded-lg bg-green-100 flex items-center justify-center mx-auto">
+                <StarIcon className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="mt-4 font-semibold text-ink">Skill Level Adaptive</h3>
-              <p className="mt-1 text-sm text-ink-2">Beginner to expert explanations</p>
+              <h3 className="mt-4 font-semibold text-gray-900">Skill Level Adaptive</h3>
+              <p className="mt-1 text-sm text-gray-600">Beginner to expert explanations</p>
             </div>
             
-            <div className="rounded-2xl border border-ink/5 bg-white hover:bg-white/90 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-6">
-              <div className="size-10 rounded-xl bg-gradient-to-br from-accent/20 to-sky/20 flex items-center justify-center">
-                <PlayIcon className="w-5 h-5 text-sky" />
+            <div className="rounded-2xl bg-purple-50 p-6 text-center">
+              <div className="w-16 h-16 rounded-lg bg-purple-100 flex items-center justify-center mx-auto">
+                <PlayIcon className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="mt-4 font-semibold text-ink">Audio Generation</h3>
-              <p className="mt-1 text-sm text-ink-2">High-quality AI narration</p>
+              <h3 className="mt-4 font-semibold text-gray-900">Audio Generation</h3>
+              <p className="mt-1 text-sm text-gray-600">High-quality AI narration</p>
             </div>
           </div>
         </div>
