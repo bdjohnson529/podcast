@@ -103,5 +103,5 @@ export function clearAudioBuffer(scriptId: string): void {
 // Clean up old entries (optional, for memory management)
 export function cleanupOldAudio(): void {
   // In a real implementation, you'd track timestamps and clean up old entries
-  console.log('🧹 Audio cache cleanup (not implemented in demo)');
+  console.log('🧹 Audio cache cleanup (not implemented yet)');
 }

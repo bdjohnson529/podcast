@@ -23,12 +23,9 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [audioError, setAudioError] = useState<string | null>(null);
-  const [useDemo, setUseDemo] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Demo audio URL for testing purposes
-  const demoAudioUrl = 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav';
-  const audioUrl = useDemo ? demoAudioUrl : audio.audioUrl;
+  const audioUrl = audio.audioUrl;
 
   useEffect(() => {
     const audioElement = audioRef.current;
@@ -170,26 +167,6 @@ export function AudioPlayer({ script, audio, onStartOver }: AudioPlayerProps) {
 
         {/* Audio Player */}
         <div className="bg-gray-50 rounded-lg p-6">
-          {/* Demo Toggle */}
-          <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-600">Audio Source:</span>
-              <button
-                onClick={() => setUseDemo(!useDemo)}
-                className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                  useDemo 
-                    ? 'bg-blue-100 text-blue-800 border border-blue-300' 
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                {useDemo ? '🔊 Demo Audio' : '🎙️ Generated Audio'}
-              </button>
-            </div>
-            <div className="text-xs text-gray-500">
-              Current: {useDemo ? 'Demo URL' : (audio.audioUrl ? 'Generated' : 'None')}
-            </div>
-          </div>
-
           {audioError && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               <p className="text-sm">
