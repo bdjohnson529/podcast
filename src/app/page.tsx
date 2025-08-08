@@ -274,19 +274,12 @@ export default function HomePage() {
 
           {/* Step 2 */}
           {currentStep === 'script' && currentScript && (
-            <div className="space-y-6">
-              <ScriptPreview 
-                script={currentScript}
-                onGenerateAudio={handleGenerateAudio}
-                onStartOver={handleStartOver}
-              />
-              {isGeneratingAudio && (
-                <LoadingState 
-                  message="Generating podcast audio..." 
-                  subMessage="Converting script to speech with ElevenLabs"
-                />
-              )}
-            </div>
+            <ScriptPreview 
+              script={currentScript}
+              onGenerateAudio={handleGenerateAudio}
+              onStartOver={handleStartOver}
+              isGeneratingAudio={isGeneratingAudio}
+            />
           )}
 
           {currentStep === 'audio' && currentScript && currentAudio && (
@@ -323,10 +316,6 @@ export default function HomePage() {
                 <div className="text-sm">
                   {currentStep === 'script' && 'Edit Topic'}
                   {currentStep === 'audio' && 'Review Script'}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {currentStep === 'script' && 'Change your learning focus'}
-                  {currentStep === 'audio' && 'Make final adjustments'}
                 </div>
               </div>
             </button>

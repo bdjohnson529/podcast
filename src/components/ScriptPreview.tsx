@@ -8,58 +8,82 @@ interface ScriptPreviewProps {
   script: PodcastScript;
   onGenerateAudio: () => void;
   onStartOver: () => void;
+  isGeneratingAudio?: boolean;
 }
 
-export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPreviewProps) {
-  const [activeTab, setActiveTab] = useState<'concepts' | 'script'>('concepts');
+export function ScriptPreview({ script, onGenerateAudio, onStartOver, isGeneratingAudio = false }: ScriptPreviewProps) {
+  const [activeTab, setActiveTab] = useState<'concepts' | 'script' | 'challenges' | 'summary' | 'terms' | 'sources'>('concepts');
 
   const tabs = [
     { id: 'concepts', label: 'Key Concepts'},
-    { id: 'script', label: 'Script'}
+    { id: 'script', label: 'Script'},
+    { id: 'challenges', label: 'Challenges'},
+    { id: 'summary', label: 'Summary'},
+    { id: 'terms', label: 'Terms'},
+    { id: 'sources', label: 'Sources'}
   ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">{script.title}</h2>
-            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
-              <div className="flex items-center space-x-1">
-                <ClockIcon className="h-4 w-4" />
-                <span>~{script.estimatedDuration} minutes</span>
-              </div>
-              <div>
-                {script.transcript?.length || 0} dialogue segments
-              </div>
-              <div>
-                {script.wordCount || 0} words
-              </div>
-            </div>
+      {isGeneratingAudio ? (
+        // Loading Screen
+        <div className="text-center py-12">
+          <div className="mb-6">
+            <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Generating Your Podcast Audio
+            </h2>
+            <p className="text-gray-600">
+              Converting your script to high-quality speech with AI voices
+            </p>
           </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={onStartOver}
-              className="btn-secondary flex items-center space-x-2"
-            >
-              <ArrowPathIcon className="h-4 w-4" />
-              <span>Start Over</span>
-            </button>
-            <button
-              onClick={onGenerateAudio}
-              className="btn-primary flex items-center space-x-2"
-            >
-              <PlayIcon className="h-4 w-4" />
-              <span>Generate Audio</span>
-            </button>
+          <div className="mt-6 text-xs text-gray-400">
+            This typically takes 2-3 minutes depending on script length
           </div>
         </div>
-        
-        <p className="text-gray-600">{script.overview}</p>
-      </div>
+      ) : (
+        // Script Content
+        <>
+          {/* Header */}
+          <div>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{script.title}</h2>
+                <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-1">
+                    <ClockIcon className="h-4 w-4" />
+                    <span>~{script.estimatedDuration} minutes</span>
+                  </div>
+                  <div>
+                    {script.transcript?.length || 0} dialogue segments
+                  </div>
+                  <div>
+                    {script.wordCount || 0} words
+                  </div>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={onStartOver}
+                  className="btn-secondary flex items-center space-x-2"
+                >
+                  <ArrowPathIcon className="h-4 w-4" />
+                  <span>Start Over</span>
+                </button>
+                <button
+                  onClick={onGenerateAudio}
+                  className="btn-primary flex items-center space-x-2"
+                >
+                  <PlayIcon className="h-4 w-4" />
+                  <span>Generate Audio</span>
+                </button>
+              </div>
+            </div>
+            
+            <p className="text-gray-600">{script.overview}</p>
+          </div>
 
-      {/* Tabbed Content */}
+          {/* Tabbed Content */}
       <div className="border-t border-gray-200 pt-6">
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 mb-6">
@@ -67,7 +91,7 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'concepts' | 'script')}
+                onClick={() => setActiveTab(tab.id as 'concepts' | 'script' | 'challenges' | 'summary' | 'terms' | 'sources')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
                     ? 'border-primary-500 text-primary-600'
@@ -125,111 +149,105 @@ export function ScriptPreview({ script, onGenerateAudio, onStartOver }: ScriptPr
             </div>
           </div>
         )}
-      </div>
 
-      {/* Challenges & Considerations */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Challenges & Considerations
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-medium text-blue-700 mb-2">Applications & Examples</h4>
-            <ul className="space-y-1 text-sm text-gray-600">
-              {(script.applicationsAndExamples?.realWorldUses || []).map((use, index) => (
-                <li key={index} className="flex items-start space-x-2">
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span>{use}</span>
+        {activeTab === 'challenges' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-medium text-blue-700 mb-2">Applications & Examples</h4>
+                <ul className="space-y-1 text-sm text-gray-600">
+                  {(script.applicationsAndExamples?.realWorldUses || []).map((use, index) => (
+                    <li key={index} className="flex items-start space-x-2">
+                      <span className="text-blue-500 mt-1">•</span>
+                      <span>{use}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-amber-700 mb-2">Limitations</h4>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    {(script.challengesAndConsiderations?.limitations || []).map((limitation, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <span className="text-amber-500 mt-1">•</span>
+                        <span>{limitation}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium text-purple-700 mb-2">Complexities</h4>
+                  <ul className="space-y-1 text-sm text-gray-600">
+                    {(script.challengesAndConsiderations?.complexities || []).map((complexity, index) => (
+                      <li key={index} className="flex items-start space-x-2">
+                        <span className="text-purple-500 mt-1">•</span>
+                        <span>{complexity}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'summary' && (
+          <div className="space-y-4">
+            <ol className="space-y-2">
+              {(script.summaryAndTakeaways || []).map((takeaway, index) => (
+                <li key={index} className="flex items-start space-x-3">
+                  <span className="flex-shrink-0 w-6 h-6 bg-primary-600 text-white text-sm font-medium rounded-full flex items-center justify-center">
+                    {index + 1}
+                  </span>
+                  <span className="text-gray-700">{takeaway}</span>
                 </li>
               ))}
-            </ul>
+            </ol>
           </div>
+        )}
+
+        {activeTab === 'terms' && (
           <div className="space-y-4">
-            <div>
-              <h4 className="font-medium text-amber-700 mb-2">Limitations</h4>
-              <ul className="space-y-1 text-sm text-gray-600">
-                {(script.challengesAndConsiderations?.limitations || []).map((limitation, index) => (
-                  <li key={index} className="flex items-start space-x-2">
-                    <span className="text-amber-500 mt-1">•</span>
-                    <span>{limitation}</span>
-                  </li>
+            {script.glossary && script.glossary.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(script.glossary || []).map((term, index) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-3">
+                    <h4 className="font-medium text-gray-900">{term.term}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{term.definition}</p>
+                  </div>
                 ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-purple-700 mb-2">Complexities</h4>
-              <ul className="space-y-1 text-sm text-gray-600">
-                {(script.challengesAndConsiderations?.complexities || []).map((complexity, index) => (
-                  <li key={index} className="flex items-start space-x-2">
-                    <span className="text-purple-500 mt-1">•</span>
-                    <span>{complexity}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">No key terms available for this topic.</p>
+            )}
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Summary & Takeaways */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Summary & Takeaways
-        </h3>
-        <ol className="space-y-2">
-          {(script.summaryAndTakeaways || []).map((takeaway, index) => (
-            <li key={index} className="flex items-start space-x-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-primary-600 text-white text-sm font-medium rounded-full flex items-center justify-center">
-                {index + 1}
-              </span>
-              <span className="text-gray-700">{takeaway}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Glossary */}
-      {script.glossary && script.glossary.length > 0 && (
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Key Terms
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {(script.glossary || []).map((term, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-3">
-                <h4 className="font-medium text-gray-900">{term.term}</h4>
-                <p className="text-sm text-gray-600 mt-1">{term.definition}</p>
+        {activeTab === 'sources' && (
+          <div className="space-y-2">
+            {(script.sources || []).map((source, index) => (
+              <div key={index} className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded">
+                <span className="flex-shrink-0 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  {source.type}
+                </span>
+                <div className="flex-1">
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    {source.title}
+                  </a>
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        )}
+          </div>
+        </>
       )}
-
-      {/* Sources */}
-      <div className="card">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Sources & References
-        </h3>
-        <div className="space-y-2">
-          {(script.sources || []).map((source, index) => (
-            <div key={index} className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded">
-              <span className="flex-shrink-0 text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                {source.type}
-              </span>
-              <div className="flex-1">
-                <a
-                  href={source.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  {source.title}
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

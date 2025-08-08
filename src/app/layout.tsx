@@ -55,7 +55,7 @@ export default function RootLayout({
           <footer className="bg-white/50 border-t border-gray-200 mt-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="text-center text-sm text-gray-600">
-                <p>© 2025 AudioCourse AI. Built for AI-powered learning experiences.</p>
+                <p>© 2025 AudioCourse AI.</p>
                 <p className="mt-2">
                   Powered by{' '}
                   <span className="font-medium">OpenAI</span>,{' '}
