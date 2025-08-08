@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from '@/components/AuthProvider';
+import { LoginButton } from '@/components/LoginButton';
+import Link from 'next/link';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,24 +28,28 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${inter.className} h-full`}>
-        <div className="min-h-full gradient-bg">
-          <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center py-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">AC</span>
+        <AuthProvider>
+          <div className="min-h-full gradient-bg">
+            <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center py-4">
+                  <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">AC</span>
+                    </div>
+                    <h1 className="text-xl font-bold text-gray-900">
+                      AudioCourse AI
+                    </h1>
+                  </Link>
+                  <div className="flex items-center space-x-4">
+                    <div className="text-sm text-gray-600 hidden sm:block">
+                      AI-Powered Learning Podcasts
+                    </div>
+                    <LoginButton />
                   </div>
-                  <h1 className="text-xl font-bold text-gray-900">
-                    AudioCourse AI
-                  </h1>
-                </div>
-                <div className="text-sm text-gray-600">
-                  AI-Powered Learning Podcasts
                 </div>
               </div>
-            </div>
-          </header>
+            </header>
           
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}
@@ -73,7 +80,8 @@ export default function RootLayout({
             },
           }}
         />
-      </body>
-    </html>
+      </AuthProvider>
+    </body>
+  </html>
   );
 }

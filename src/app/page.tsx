@@ -2,17 +2,20 @@
 
 import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
+import { useAuth } from '@/components/AuthProvider';
 import { TopicInput } from '@/components/TopicInput';
 import { ScriptPreview } from '@/components/ScriptPreview';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { SavedEpisodes } from '@/components/SavedEpisodes';
 import { LoadingState } from '@/components/LoadingState';
+import { AuthBanner } from '@/components/AuthBanner';
 import toast from 'react-hot-toast';
 
 type AppStep = 'input' | 'script' | 'audio';
 
 export default function HomePage() {
   const [currentStep, setCurrentStep] = useState<AppStep>('input');
+  const { session } = useAuth();
   const {
     currentInput,
     currentScript,
@@ -41,9 +44,22 @@ export default function HomePage() {
 
     try {
       console.log('🌐 Making API request to /api/generate-script');
+      
+      // Prepare headers with auth token if available
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+        console.log('🔐 Including auth token in request');
+      } else {
+        console.log('👤 Making request as anonymous user');
+      }
+      
       const response = await fetch('/api/generate-script', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(currentInput),
       });
 
@@ -211,6 +227,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-8">
+      <AuthBanner />
       {renderStepIndicator()}
 
       {/* Main Content */}

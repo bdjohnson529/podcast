@@ -21,6 +21,28 @@ export async function POST(request: NextRequest) {
     const input: PodcastInput = await request.json();
     console.log('📥 Request input:', JSON.stringify(input, null, 2));
 
+    // Get the authorization header to identify the user
+    const authHeader = request.headers.get('authorization');
+    const accessToken = authHeader?.replace('Bearer ', '');
+    
+    // Create a Supabase client with the user's session if available
+    let userSupabase = supabase;
+    let userId: string | null = null;
+    
+    if (accessToken) {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+        if (!userError && user) {
+          userId = user.id;
+          console.log('👤 Authenticated user ID:', userId);
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not get user from token:', error);
+      }
+    } else {
+      console.log('👤 No auth token provided, proceeding as anonymous user');
+    }
+
     // Validate input
     if (!input.topic || !input.familiarity || !input.duration) {
       console.error('❌ Validation failed: Missing required fields', {
@@ -74,6 +96,7 @@ export async function POST(request: NextRequest) {
       const { data: insertedData, error: dbError } = await supabase
         .from('episodes')
         .insert({
+          user_id: userId,
           topic: input.topic,
           familiarity: input.familiarity,
           industries: input.industries.map(i => i.name),

@@ -96,7 +96,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       audioPlaybackSpeed: speed,
     })),
 
-  saveEpisode: (episode) =>
+  saveEpisode: async (episode) => {
     set((state) => {
       const existingIndex = state.savedEpisodes.findIndex(e => e.id === episode.id);
       let newEpisodes;
@@ -111,7 +111,41 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
       
       return { savedEpisodes: newEpisodes };
-    }),
+    });
+
+    // Try to save to database if user is authenticated
+    try {
+      // Get current session from Supabase
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.access_token) {
+        const response = await fetch('/api/episodes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            id: episode.id,
+            topic: episode.input.topic,
+            familiarity: episode.input.familiarity,
+            industries: episode.input.industries?.map(i => i.name) || [],
+            use_case: episode.input.useCase,
+            duration: episode.input.duration,
+            script: episode.script,
+            audio_url: episode.audio?.audioUrl,
+          }),
+        });
+        
+        if (!response.ok) {
+          console.warn('Failed to save episode to database:', response.statusText);
+        }
+      }
+    } catch (error) {
+      console.warn('Could not save episode to database:', error);
+    }
+  },
 
   removeSavedEpisode: (id) =>
     set((state) => ({
