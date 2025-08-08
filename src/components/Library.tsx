@@ -316,7 +316,6 @@ export function Library() {
               >
                 <LockClosedIcon className="h-4 w-4 inline mr-1" />
                 Personal
-                <span className="ml-1 text-xs opacity-75">(1)</span>
               </button>
               <button
                 onClick={() => handleScopeChange('public')}
@@ -328,7 +327,6 @@ export function Library() {
               >
                 <GlobeAltIcon className="h-4 w-4 inline mr-1" />
                 Public
-                <span className="ml-1 text-xs opacity-75">(2)</span>
               </button>
             </div>
           </div>
