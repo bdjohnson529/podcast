@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/components/AuthProvider';
 import { CreateNew } from '@/components/createflow/CreateNew';
-import { ScriptPreview } from '@/components/ScriptPreview';
+import { ScriptPreview } from '@/components/createflow/ScriptPreview';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { UploadStep } from '@/components/UploadStep';
 import toast from 'react-hot-toast';
