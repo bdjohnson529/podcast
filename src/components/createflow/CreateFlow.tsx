@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { useAuth } from '@/components/AuthProvider';
-import { TopicInput } from '@/components/TopicInput';
+import { CreateNew } from '@/components/createflow/CreateNew';
 import { ScriptPreview } from '@/components/ScriptPreview';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { UploadStep } from '@/components/UploadStep';
@@ -255,7 +255,7 @@ export function CreateFlow() {
         {renderStepIndicator()}
 
         {currentStep === 'input' && (
-          <TopicInput onGenerate={handleGenerateScript} />
+          <CreateNew onGenerate={handleGenerateScript} />
         )}
 
         {currentStep === 'script' && currentScript && (

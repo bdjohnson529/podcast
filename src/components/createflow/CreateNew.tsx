@@ -2,11 +2,11 @@
 
 import { useAppStore } from '@/lib/store';
 
-interface TopicInputProps {
+interface CreateNewProps {
   onGenerate: () => void;
 }
 
-export function TopicInput({ onGenerate }: TopicInputProps) {
+export function CreateNew({ onGenerate }: CreateNewProps) {
   const {
     currentInput,
     setCurrentInput,
