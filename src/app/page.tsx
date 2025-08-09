@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { Library } from '@/components/Library';
 import { AuthBanner } from '@/components/AuthBanner';
-import { CreateFlow } from '@/components/CreateFlow';
+import { CreateFlow } from '@/components/createflow/CreateFlow';
 import { Sidebar } from '@/components/Sidebar';
 import { Analytics } from "@vercel/analytics/next"
 

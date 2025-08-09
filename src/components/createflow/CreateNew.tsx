@@ -2,11 +2,11 @@
 
 import { useAppStore } from '@/lib/store';
 
-interface TopicInputProps {
+interface CreateNewProps {
   onGenerate: () => void;
 }
 
-export function TopicInput({ onGenerate }: TopicInputProps) {
+export function CreateNew({ onGenerate }: CreateNewProps) {
   const {
     currentInput,
     setCurrentInput,
@@ -57,6 +57,10 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
             value={currentInput.topic}
             onChange={(e) => setCurrentInput({ topic: e.target.value })}
             placeholder="Enter any topic you want to learn about"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             className="input-field"
             disabled={isGeneratingScript}
           />
