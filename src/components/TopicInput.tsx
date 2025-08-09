@@ -57,6 +57,10 @@ export function TopicInput({ onGenerate }: TopicInputProps) {
             value={currentInput.topic}
             onChange={(e) => setCurrentInput({ topic: e.target.value })}
             placeholder="Enter any topic you want to learn about"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             className="input-field"
             disabled={isGeneratingScript}
           />
