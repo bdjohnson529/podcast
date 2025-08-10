@@ -91,7 +91,16 @@ export default function FeedsPage() {
                         ? 'border-primary-600 text-primary-700'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
-                    onClick={() => setActive(t.key)}
+                    onClick={() => {
+                      setActive(t.key);
+                      if (t.key === 'view') {
+                        // Clear selected feed and remove ?feed from URL
+                        setSelectedId(null);
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete('feed');
+                        window.history.replaceState(null, '', url.toString());
+                      }
+                    }}
                   >
                     {t.label}
                   </button>

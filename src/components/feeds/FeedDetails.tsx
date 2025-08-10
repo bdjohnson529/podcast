@@ -77,6 +77,8 @@ export function FeedDetails({ id }: FeedDetailsProps) {
       ) : (
         <p className="text-gray-500 italic">No description provided.</p>
       )}
+
+      <h3>Hello world</h3>
     </div>
   );
 }
