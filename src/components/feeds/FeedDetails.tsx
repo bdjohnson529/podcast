@@ -15,6 +15,58 @@ interface FeedDetailsProps {
   id: string;
 }
 
+function AddSuggestedButton({ suggestion }: { suggestion: RssFeed }) {
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function add() {
+    setErr(null);
+    setAdding(true);
+    try {
+      const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
+      const res = await fetch('/api/feeds', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          name: suggestion.title,
+          description: suggestion.description,
+          feed_url: suggestion.feedUrl,
+          site_url: suggestion.siteUrl,
+        }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || 'Failed to add feed');
+      }
+      setAdded(true);
+    } catch (e: any) {
+      setErr(e?.message || 'Failed to add feed');
+    } finally {
+      setAdding(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={add}
+        disabled={adding || added}
+        className={`px-3 py-1.5 rounded text-white text-sm ${added ? 'bg-green-600' : adding ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
+        aria-label={added ? 'Added' : 'Add this feed'}
+        title={added ? 'Added' : 'Add this feed'}
+      >
+        {added ? 'Added' : adding ? 'Adding…' : 'Add to My Feeds'}
+      </button>
+      {err && <span className="text-xs text-red-600">{err}</span>}
+    </div>
+  );
+}
+
 export function FeedDetails({ id }: FeedDetailsProps) {
   const [feed, setFeed] = useState<Feed | null>(null);
   const [loading, setLoading] = useState(true);
@@ -132,6 +184,7 @@ export function FeedDetails({ id }: FeedDetailsProps) {
                       )}
                     </div>
                   </div>
+                  <AddSuggestedButton suggestion={s} />
                 </div>
               </li>
             ))}
