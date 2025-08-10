@@ -32,8 +32,8 @@ export function FeedForm({ onSubmit }: FeedFormProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-y-6 gap-x-6">
             {/* Name */}
-            <label className="sm:col-span-2 self-center text-gray-900 font-semibold">Name</label>
-            <div className="sm:col-span-3">
+            <label className="sm:col-span-1 self-center text-gray-900 font-semibold">Name</label>
+            <div className="sm:col-span-4">
               <input
                 type="text"
                 value={name}
@@ -46,8 +46,8 @@ export function FeedForm({ onSubmit }: FeedFormProps) {
             </div>
 
             {/* Description */}
-            <label className="sm:col-span-2 self-start pt-2 text-gray-900 font-semibold">Description</label>
-            <div className="sm:col-span-3">
+            <label className="sm:col-span-1 self-start pt-2 text-gray-900 font-semibold">Description</label>
+            <div className="sm:col-span-4">
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
