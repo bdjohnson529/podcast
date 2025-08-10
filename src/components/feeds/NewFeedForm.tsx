@@ -32,33 +32,41 @@ export function NewFeedForm({ onCreate }: Props) {
       <h2 className="text-xl font-semibold text-gray-900">Create a new feed</h2>
       <p className="text-gray-600 mt-1">Organize episodes by topic, audience, or goal.</p>
 
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            placeholder="e.g. AI for Product Managers"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-          />
+      <form onSubmit={handleSubmit} className="mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-y-6 gap-x-6">
+          {/* Name */}
+          <label className="sm:col-span-2 self-center text-gray-900 font-semibold">Name</label>
+          <div className="sm:col-span-3">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="e.g. AI for Product Managers"
+              className="w-full input-field"
+              autoComplete="off"
+            />
+          </div>
+
+          {/* Description */}
+          <label className="sm:col-span-2 self-start pt-2 text-gray-900 font-semibold">Description (optional)</label>
+          <div className="sm:col-span-3">
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Short summary of what this feed covers"
+              className="w-full input-field min-h-[96px]"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Description (optional)</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            placeholder="Short summary of what this feed covers"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-          />
-        </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div>
+
+        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+
+        <div className="mt-4 flex justify-end">
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center px-4 py-2 rounded-md bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50"
+            className={`px-6 py-3 rounded-md text-white font-semibold ${submitting ? 'bg-primary-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
           >
             {submitting ? 'Creating…' : 'Create feed'}
           </button>
