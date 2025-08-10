@@ -72,7 +72,7 @@ export default function ConfigurePage() {
       <div className="ml-64">
         <div className="p-8">
           <div className="max-w-3xl mx-auto">
-            ProfileTabs onSubmit={saveProfile} loader={loadProfile} /
+            <ProfileTabs onSubmit={saveProfile} loader={loadProfile} />
           </div>
         </div>
       </div>
