@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
   activeTab: 'create' | 'episodes';
@@ -41,6 +42,14 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             </svg>
             <span className="font-medium">Create</span>
           </button>
+
+          {/* Configure Link */}
+          <div className="mt-2">
+            <Link href="/configure" className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors text-gray-700 hover:bg-gray-50">
+              <Cog6ToothIcon className="w-5 h-5" />
+              <span className="font-medium">Configure</span>
+            </Link>
+          </div>
         </div>
       </nav>
     </div>
