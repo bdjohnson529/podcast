@@ -1,7 +1,8 @@
 'use client';
 
 import React from "react";
-import { GlobeAltIcon, LockClosedIcon, ClockIcon, LinkIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { GlobeAltIcon, ClockIcon, LinkIcon, TrashIcon } from "@heroicons/react/24/outline";
+import ScopeToggle from "./ScopeToggle";
 
 interface Props {
   loading: boolean;
@@ -20,26 +21,7 @@ const PublicLibrary: React.FC<Props> = ({ loading, episodes, scope, session, onS
       <div className="bg-white rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => onScopeChange('personal')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  scope === 'personal' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <LockClosedIcon className="h-4 w-4 inline mr-1" />
-                Personal
-              </button>
-              <button
-                onClick={() => onScopeChange('public')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  scope === 'public' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <GlobeAltIcon className="h-4 w-4 inline mr-1" />
-                Public
-              </button>
-            </div>
+            <ScopeToggle scope={scope} onScopeChange={onScopeChange} showShortcutHints showPublicCount publicCount={episodes.length} />
           </div>
         </div>
 
@@ -57,26 +39,7 @@ const PublicLibrary: React.FC<Props> = ({ loading, episodes, scope, session, onS
       <div className="bg-white rounded-xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <div className="flex bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => onScopeChange('personal')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  scope === 'personal' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <LockClosedIcon className="h-4 w-4 inline mr-1" />
-                Personal
-              </button>
-              <button
-                onClick={() => onScopeChange('public')}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  scope === 'public' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <GlobeAltIcon className="h-4 w-4 inline mr-1" />
-                Public
-              </button>
-            </div>
+            <ScopeToggle scope={scope} onScopeChange={onScopeChange} showShortcutHints showPublicCount publicCount={episodes.length} />
           </div>
         </div>
 
@@ -95,29 +58,9 @@ const PublicLibrary: React.FC<Props> = ({ loading, episodes, scope, session, onS
   return (
     <div className="bg-white rounded-xl p-6">
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => onScopeChange('personal')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                scope === 'personal' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <LockClosedIcon className="h-4 w-4 inline mr-1" />
-              Personal
-            </button>
-            <button
-              onClick={() => onScopeChange('public')}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                scope === 'public' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <GlobeAltIcon className="h-4 w-4 inline mr-1" />
-              Public
-              <span className="ml-1 text-xs opacity-75">({episodes.length})</span>
-            </button>
+          <div>
+            <ScopeToggle scope={scope} onScopeChange={onScopeChange} showShortcutHints showPublicCount publicCount={episodes.length} />
           </div>
-        </div>
         <span className="text-sm text-gray-500">{`${episodes.length} public`}</span>
       </div>
 
