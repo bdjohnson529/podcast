@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { Sidebar } from '@/components/Sidebar';
 import { ProfileTabs } from '@/components/profile/ProfileTabs';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
@@ -17,14 +18,7 @@ export default function ProfilePage() {
   }, [user, loading, router]);
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   async function loadProfile(): Promise<{ company: string; role: string; specialization: string; goal: string } | null> {

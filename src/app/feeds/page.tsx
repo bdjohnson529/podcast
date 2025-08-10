@@ -6,6 +6,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { Sidebar } from '@/components/Sidebar';
 import { FeedView } from '@/components/feeds/FeedView';
 import { FeedForm } from '@/components/feeds/FeedForm';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 export default function FeedsPage() {
   const { user, loading } = useAuth();
@@ -58,14 +59,7 @@ export default function FeedsPage() {
   }
 
   if (loading || !user || initializing) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
