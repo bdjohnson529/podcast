@@ -29,7 +29,7 @@ export default function CreatePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
-      <Sidebar activeTab={'create'} onTabChange={() => {}} />
+      <Sidebar />
 
       <div className="ml-64">
         <div className="p-8 space-y-8">

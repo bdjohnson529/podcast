@@ -1,16 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { Library } from '@/components/Library';
 import { AuthBanner } from '@/components/AuthBanner';
-import { CreateFlow } from '@/components/createflow/CreateFlow';
 import { Sidebar } from '@/components/Sidebar';
 import { Analytics } from "@vercel/analytics/next"
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<'create' | 'episodes'>('episodes');
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -47,22 +45,18 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar />
       <Analytics />
 
       <div className="ml-64">
         <div className="p-8 space-y-8">
           <AuthBanner />
 
-          {activeTab === 'create' && <CreateFlow />}
-
-          {activeTab === 'episodes' && (
-            <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6">
-<Library />
-              </div>
+          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-6">
+              <Library />
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

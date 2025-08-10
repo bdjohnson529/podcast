@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { Sidebar } from '@/components/Sidebar';
 import { Configure } from '@/components/configure/Configure';
 
 export default function ConfigurePage() {
-  const [activeTab, setActiveTab] = useState<'create' | 'episodes'>('episodes');
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -30,7 +29,7 @@ export default function ConfigurePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar />
 
       <div className="ml-64">
         <div className="p-8">
