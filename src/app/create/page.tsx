@@ -3,24 +3,20 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
-import { Library } from '@/components/Library';
-import { AuthBanner } from '@/components/AuthBanner';
 import { Sidebar } from '@/components/Sidebar';
-import { Analytics } from "@vercel/analytics/next"
+import { CreateFlow } from '@/components/createflow/CreateFlow';
 
-export default function HomePage() {
+export default function CreatePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // Redirect unauthenticated users to landing page
   useEffect(() => {
     if (!loading && !user) {
       router.push('/landing');
     }
   }, [user, loading, router]);
 
-  // Show loading while checking authentication
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
@@ -31,30 +27,15 @@ export default function HomePage() {
     );
   }
 
-  // Show loading while redirecting unauthenticated users
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
       <Sidebar />
-      <Analytics />
 
       <div className="ml-64">
         <div className="p-8 space-y-8">
-          <AuthBanner />
-
           <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6">
-              <Library />
+              <CreateFlow />
             </div>
           </div>
         </div>
@@ -62,3 +43,4 @@ export default function HomePage() {
     </div>
   );
 }
+

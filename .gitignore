@@ -44,3 +44,12 @@ public/generated-audio/
 # Temporary files
 *.tmp
 *.temp
+
+# Supabase
+supabase/.branches
+supabase/.temp
+
+# dotenvx
+supabase/.env.keys
+supabase/.env.local
+supabase/.env.*.local
