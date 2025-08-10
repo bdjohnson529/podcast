@@ -30,7 +30,7 @@ const ScopeToggle: React.FC<Props> = ({ scope, onScopeChange, showShortcutHints,
         }`}
       >
         <GlobeAltIcon className="h-4 w-4 inline mr-1" />
-        Publics
+        Public
       </button>
     </div>
   );
