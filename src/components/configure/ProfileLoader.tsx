@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Configure } from "./Configure";
+import { ProfileForm } from "./ProfileForm";
 
 interface Values {
   company: string;
@@ -59,7 +59,7 @@ export function ProfileLoader({ loader, onSubmit }: Props) {
   }
 
   return (
-    <Configure
+    <ProfileForm
       initialCompany={initial?.company}
       initialRole={initial?.role}
       initialSpecialization={initial?.specialization}

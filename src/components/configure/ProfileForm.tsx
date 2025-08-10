@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 
-interface ConfigureProps {
+interface ProfileFormProps {
   initialCompany?: string;
   initialRole?: string;
   initialSpecialization?: string;
@@ -10,13 +10,13 @@ interface ConfigureProps {
   onSubmit?: (values: { company: string; role: string; specialization: string; goal: string }) => void | Promise<void>;
 }
 
-export function Configure({
+export function ProfileForm({
   initialCompany = '',
   initialRole = '',
   initialSpecialization = '',
   initialGoal = '',
   onSubmit,
-}: ConfigureProps) {
+}: ProfileFormProps) {
   const [company, setCompany] = useState(initialCompany);
   const [role, setRole] = useState(initialRole);
   const [specialization, setSpecialization] = useState(initialSpecialization);
@@ -38,7 +38,7 @@ export function Configure({
     <div className="bg-white rounded-xl border border-gray-200">
       <form onSubmit={handleSubmit}>
         <div className="p-6">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Configure AudioCast</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Edit Profile</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-y-6 gap-x-6">
             {/* Company */}
@@ -98,7 +98,7 @@ export function Configure({
             disabled={submitting}
             className={`px-6 py-3 rounded-md text-white font-semibold ${submitting ? 'bg-primary-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'} `}
           >
-            Submit
+            Save
           </button>
         </div>
       </form>

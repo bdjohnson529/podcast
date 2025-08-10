@@ -4,8 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { Sidebar } from '@/components/Sidebar';
-import { Configure } from '@/components/configure/Configure';
-import { ProfileLoader } from '@/components/configure/ProfileLoader';
+import { ConfigureTabs } from '@/components/configure/ConfigureTabs';
 
 export default function ConfigurePage() {
   const { user, loading } = useAuth();
@@ -73,7 +72,7 @@ export default function ConfigurePage() {
       <div className="ml-64">
         <div className="p-8">
           <div className="max-w-3xl mx-auto">
-            <ProfileLoader onSubmit={saveProfile} loader={loadProfile} />
+            <ConfigureTabs onSubmit={saveProfile} loader={loadProfile} />
           </div>
         </div>
       </div>
