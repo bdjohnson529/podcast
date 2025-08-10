@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 
 interface Feed {
   id: string;
@@ -13,13 +13,13 @@ interface Props {
   feeds: Feed[];
 }
 
-export function FeedsList({ feeds }: Props) {
+export function FeedView({ feeds }: Props) {
   if (!feeds.length) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-900">No feeds yet</h3>
-          <p className="text-gray-600 mt-1">Create your first feed above to organize episodes.</p>
+          <p className="text-gray-600 mt-1">Create your first feed to organize episodes.</p>
         </div>
       </div>
     );

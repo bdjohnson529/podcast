@@ -11,3 +11,19 @@ INSTRUCTIONS: Add a new model named feeds, and the associated route, page, and d
 Notes
 * Add option for routes
 * Add to sidebar
+
+
+# Next prompt
+
+Now standardize the views. Make the configuration and architecture of src/components/feeds match src/components/profile.
+
+Specifically add two tabs on /feeds, one for viewing all feeds, and another for creating a new feed. Use the UI defined in src/components/profile. Create two files
+
+src/components/feeds/FeedView.tsx
+src/components/feeds/FeedForm.tsx
+
+
+
+# Common prompts
+- Generate scaffolding
+- Rename components and all associated references
