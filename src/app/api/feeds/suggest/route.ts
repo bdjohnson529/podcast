@@ -1,10 +1,124 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { openai } from '@/lib/openai';
-import { validateFeeds, parseRssSuggestRequest, RssSuggestResponse } from '@/lib/rss-suggest';
+import { validateFeeds, parseRssSuggestRequest, RssSuggestResponse, RssFeed } from '@/lib/rss-suggest';
 
 function truncate(str: string, n = 500) {
   if (!str) return str;
   return str.length > n ? str.slice(0, n) + '…[truncated]' : str;
+}
+
+async function readWithCap(res: Response, maxBytes: number): Promise<string | null> {
+  const reader = (res as any).body?.getReader?.();
+  if (!reader) {
+    // Fallback for environments without getReader; risk of large payload
+    const text = await res.text().catch(() => '');
+    return text.length > maxBytes ? null : text;
+  }
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      received += value.byteLength;
+      if (received > maxBytes) return null;
+      chunks.push(value);
+    }
+  }
+  // Concatenate without Buffer for Edge compatibility
+  let totalLen = 0;
+  for (const c of chunks) totalLen += c.byteLength;
+  const merged = new Uint8Array(totalLen);
+  let offset = 0;
+  for (const c of chunks) { merged.set(c, offset); offset += c.byteLength; }
+  return new TextDecoder('utf-8').decode(merged);
+}
+
+async function isValidFeed(url: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(url, {
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: {
+        accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*;q=0.5',
+        'user-agent': 'PodcastFeedValidator/1.0 (+https://example.com)'
+      },
+      // Revalidation disabled since these are third-party feeds
+      cache: 'no-store'
+    });
+    if (!res.ok) return false;
+
+    const ct = res.headers.get('content-type') || '';
+    const looksLikeFeedContentType = /(application\/(rss|atom)\+xml|application\/xml|text\/xml)/i.test(ct);
+
+    const MAX_BYTES = 2_000_000; // 2MB cap
+    const xml = await readWithCap(res, MAX_BYTES);
+    if (!xml) return false;
+
+    if (!looksLikeFeedContentType && /<html[\s>]/i.test(xml)) return false;
+
+    // Lazy import parser only when needed
+    const { XMLParser } = await import('fast-xml-parser');
+    const parser = new XMLParser({ ignoreAttributes: false });
+
+    let obj: any;
+    try {
+      obj = parser.parse(xml);
+    } catch {
+      return false;
+    }
+
+    if (obj?.rss) {
+      const channel = obj.rss.channel;
+      const items = Array.isArray(channel?.item)
+        ? channel.item
+        : channel?.item
+        ? [channel.item]
+        : [];
+      const hasTitle = !!(channel?.title && String(channel.title).trim());
+      return hasTitle && items.length > 0;
+    }
+
+    if (obj?.feed) {
+      const feed = obj.feed;
+      const entries = Array.isArray(feed?.entry)
+        ? feed.entry
+        : feed?.entry
+        ? [feed.entry]
+        : [];
+      const hasTitle = !!(feed?.title && String(feed.title).trim());
+      return hasTitle && entries.length > 0;
+    }
+
+    return false;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function filterValidFeeds(feeds: RssFeed[], concurrency = 6): Promise<RssFeed[]> {
+  const results: RssFeed[] = [];
+  let i = 0;
+  async function worker() {
+    while (true) {
+      const idx = i++;
+      if (idx >= feeds.length) break;
+      const f = feeds[idx];
+      try {
+        const ok = await isValidFeed(f.feedUrl);
+        if (ok) results.push(f);
+      } catch {
+        // ignore
+      }
+    }
+  }
+  const workers = Array.from({ length: Math.min(concurrency, Math.max(1, feeds.length)) }, () => worker());
+  await Promise.all(workers);
+  return results;
 }
 
 // Allow only POST for controlled prompting
@@ -144,7 +258,10 @@ Output Structure (return as plain JSON — no markdown, comments, or extra text)
       );
     }
 
-    const final: RssSuggestResponse = { feeds: feedsResult.data, model };
+    // Network-validate that feedUrl points to an actual RSS/Atom feed
+    const validatedFeeds = await filterValidFeeds(feedsResult.data, 6);
+
+    const final: RssSuggestResponse = { feeds: validatedFeeds, model };
     if (final.feeds.length === 0) {
       console.info('[rss-suggest] Success but empty result', { duration_ms: Date.now() - startedAt });
     } else {
