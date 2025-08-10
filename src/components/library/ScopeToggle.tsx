@@ -22,7 +22,6 @@ const ScopeToggle: React.FC<Props> = ({ scope, onScopeChange, showShortcutHints,
       >
         <LockClosedIcon className="h-4 w-4 inline mr-1" />
         Personal
-        {showShortcutHints && <span className="ml-1 text-xs opacity-75">(1)</span>}
       </button>
       <button
         onClick={() => onScopeChange('public')}
@@ -32,10 +31,6 @@ const ScopeToggle: React.FC<Props> = ({ scope, onScopeChange, showShortcutHints,
       >
         <GlobeAltIcon className="h-4 w-4 inline mr-1" />
         Public
-        {showShortcutHints && <span className="ml-1 text-xs opacity-75">(2)</span>}
-        {showPublicCount && typeof publicCount === 'number' && (
-          <span className="ml-1 text-xs opacity-75">({publicCount})</span>
-        )}
       </button>
     </div>
   );
