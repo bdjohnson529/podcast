@@ -11,6 +11,8 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     <div className="fixed left-0 top-[5rem] w-64 bg-white border-r border-gray-200 h-[calc(100vh-5rem)] flex flex-col shadow-sm z-10">
       <nav className="flex-1 p-4">
         <div className="space-y-1">
+
+          {/* Library Tab */}
           <button
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
               activeTab === 'episodes'
@@ -24,7 +26,8 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             </svg>
             <span className="font-medium">Library</span>
           </button>
-          
+
+          {/* Create Tab */}
           <button
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
               activeTab === 'create'
