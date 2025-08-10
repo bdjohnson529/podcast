@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { suggestFeeds } from '@/lib/client/rss';
+import type { RssFeed } from '@/lib/rss-suggest';
 
 interface Feed {
   id: string;
@@ -17,6 +19,10 @@ export function FeedDetails({ id }: FeedDetailsProps) {
   const [feed, setFeed] = useState<Feed | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestError, setSuggestError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<RssFeed[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,6 +47,25 @@ export function FeedDetails({ id }: FeedDetailsProps) {
     if (id) load();
     return () => { cancelled = true; };
   }, [id]);
+
+  async function onSuggest() {
+    if (!feed) return;
+    setSuggestError(null);
+    setSuggestions(null);
+    setSuggesting(true);
+    try {
+      const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
+      const { feeds } = await suggestFeeds(
+        { query: feed.name || feed.description || 'podcast feed', limit: 5 },
+        { accessToken: token },
+      );
+      setSuggestions(feeds);
+    } catch (e: any) {
+      setSuggestError(e?.message || 'Failed to get suggestions');
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -78,7 +103,42 @@ export function FeedDetails({ id }: FeedDetailsProps) {
         <p className="text-gray-500 italic">No description provided.</p>
       )}
 
-      <h3>Hello world</h3>
+      <div className="flex items-center gap-3">
+        <button
+          className={`px-4 py-2 rounded text-white transition ${suggesting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
+          type="button"
+          onClick={onSuggest}
+          disabled={suggesting}
+        >
+          {suggesting ? 'Getting RSS Feeds...' : 'Get RSS Feeds'}
+        </button>
+        {suggestError && <span className="text-sm text-red-600">{suggestError}</span>}
+      </div>
+
+      {suggestions && suggestions.length > 0 && (
+        <div className="mt-4">
+          <h3 className="font-semibold text-gray-900 mb-2">Suggested Feeds</h3>
+          <ul className="space-y-2">
+            {suggestions.map((s, idx) => (
+              <li key={`${s.feedUrl}-${idx}`} className="border border-gray-200 rounded p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900">{s.title}</p>
+                    {s.description && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{s.description}</p>}
+                    <div className="mt-1 space-x-3 text-sm">
+                      <a className="text-primary-700 hover:underline break-all" href={s.feedUrl} target="_blank" rel="noreferrer">Feed</a>
+                      {s.siteUrl && (
+                        <a className="text-gray-700 hover:underline break-all" href={s.siteUrl} target="_blank" rel="noreferrer">Site</a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
     </div>
   );
 }

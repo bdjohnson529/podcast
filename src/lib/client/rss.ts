@@ -2,7 +2,7 @@ import { RssSuggestRequest, RssSuggestResponse } from '@/lib/rss-suggest';
 
 export async function suggestFeeds(
   params: RssSuggestRequest,
-  options?: { accessToken?: string }
+  options?: { accessToken?: string; userPrompt?: string }
 ): Promise<RssSuggestResponse> {
   const res = await fetch('/api/feeds/suggest', {
     method: 'POST',
@@ -10,7 +10,10 @@ export async function suggestFeeds(
       'Content-Type': 'application/json',
       ...(options?.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
     },
-    body: JSON.stringify(params),
+    body: JSON.stringify({
+      ...params,
+      ...(options?.userPrompt ? { userPrompt: options.userPrompt } : {}),
+    }),
   });
 
   if (!res.ok) {
