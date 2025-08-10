@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
-import { ProfileLoader } from "./ProfileLoader";
+import React, { useEffect, useMemo, useState } from "react";
 import { ProfileView } from "./ProfileView";
 import { ProfileForm } from "./ProfileForm";
 
@@ -20,10 +19,34 @@ interface Props {
 export function ConfigureTabs({ loader, onSubmit }: Props) {
   const [active, setActive] = useState<"view" | "edit">("view");
   const [current, setCurrent] = useState<Values | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLoaded = useCallback((v: Values) => {
-    setCurrent(v);
-  }, []);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const v = await loader();
+        if (!mounted) return;
+        const normalized: Values = {
+          company: v?.company || "",
+          role: v?.role || "",
+          specialization: v?.specialization || "",
+          goal: v?.goal || "",
+        };
+        setCurrent(normalized);
+      } catch (e) {
+        console.error(e);
+        if (!mounted) return;
+        setError("Failed to load profile");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [loader]);
 
   const tabs = useMemo(
     () => [
@@ -32,6 +55,22 @@ export function ConfigureTabs({ loader, onSubmit }: Props) {
     ],
     []
   );
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-xl border border-red-200 p-6 text-red-700">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -52,26 +91,6 @@ export function ConfigureTabs({ loader, onSubmit }: Props) {
           ))}
         </nav>
       </div>
-
-      {/* Load once, then render either view or edit */}
-      <ProfileLoader
-        loader={async () => {
-          const v = await loader();
-          const normalized: Values = {
-            company: v?.company || "",
-            role: v?.role || "",
-            specialization: v?.specialization || "",
-            goal: v?.goal || "",
-          };
-          setCurrent(normalized);
-          return normalized;
-        }}
-        onSubmit={async (values) => {
-          await onSubmit(values);
-          setCurrent(values);
-          setActive("view");
-        }}
-      />
 
       {current && active === "view" && (
         <div className="mt-4">
