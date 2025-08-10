@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { Sidebar } from '@/components/Sidebar';
 import { FeedView } from '@/components/feeds/FeedView';
 import { FeedForm } from '@/components/feeds/FeedForm';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { FeedDetails } from '@/components/feeds/FeedDetails';
 
 export default function FeedsPage() {
   const { user, loading } = useAuth();
@@ -15,6 +16,7 @@ export default function FeedsPage() {
   const [initializing, setInitializing] = useState(true);
   const [active, setActive] = useState<'view' | 'create'>('view');
   const [error, setError] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -38,6 +40,13 @@ export default function FeedsPage() {
     }
     if (user) load();
   }, [user]);
+
+  // Sync selected feed with URL search params (?feed=ID)
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const id = searchParams.get('feed');
+    setSelectedId(id);
+  }, [searchParams]);
 
   async function onCreate(values: { name: string; description?: string }) {
     setError(null);
@@ -95,9 +104,23 @@ export default function FeedsPage() {
             )}
 
             {active === 'view' && (
-              <div className="mt-4">
-                <FeedView feeds={feeds} />
-              </div>
+              selectedId ? (
+                <div className="mt-4 space-y-4">
+                  <FeedDetails id={selectedId} />
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <FeedView
+                    feeds={feeds}
+                    onSelect={(id) => {
+                      setSelectedId(id);
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('feed', id);
+                      window.history.replaceState(null, '', url.toString());
+                    }}
+                  />
+                </div>
+              )
             )}
 
             {active === 'create' && (
