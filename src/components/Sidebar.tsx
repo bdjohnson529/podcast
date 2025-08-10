@@ -1,4 +1,5 @@
 'use client';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
@@ -9,7 +10,6 @@ export function Sidebar() {
     <div className="fixed left-0 top-[5rem] w-64 bg-white border-r border-gray-200 h-[calc(100vh-5rem)] flex flex-col shadow-sm z-10">
       <nav className="flex-1 p-4">
         <div className="space-y-1">
-
           {/* Library Tab */}
           <Link
             href="/"
@@ -40,15 +40,18 @@ export function Sidebar() {
             <span className="font-medium">Create</span>
           </Link>
 
-          {/* Configure Link */}
+          {/* Profile Link */}
           <div className="mt-2">
-            <Link href="/configure" className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-              pathname === '/configure'
-                ? 'bg-primary-600 text-white shadow-sm'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}>
+            <Link
+              href="/profile"
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                pathname === '/profile'
+                  ? 'bg-primary-600 text-white shadow-sm'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
               <Cog6ToothIcon className="w-5 h-5" />
-              <span className="font-medium">Configure</span>
+              <span className="font-medium">Profile</span>
             </Link>
           </div>
         </div>

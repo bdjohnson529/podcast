@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -6,7 +6,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { Sidebar } from '@/components/Sidebar';
 import { ProfileTabs } from '@/components/profile/ProfileTabs';
 
-export default function ConfigurePage() {
+export default function ProfilePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -20,7 +20,7 @@ export default function ConfigurePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function ConfigurePage() {
       <div className="ml-64">
         <div className="p-8">
           <div className="max-w-3xl mx-auto">
-            ProfileTabs onSubmit={saveProfile} loader={loadProfile} /
+            <ProfileTabs onSubmit={saveProfile} loader={loadProfile} />
           </div>
         </div>
       </div>
