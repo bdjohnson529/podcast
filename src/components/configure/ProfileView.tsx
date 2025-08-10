@@ -15,7 +15,7 @@ export function ProfileView({ company, role, specialization, goal }: Props) {
       <div className="p-6">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Your Profile</h2>
 
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8">
+        <dl className="space-y-8">
           <div>
             <dt className="text-sm font-semibold text-gray-600">Company</dt>
             <dd className="mt-1 text-gray-900">{company || <span className="text-gray-400">Not set</span>}</dd>
@@ -26,12 +26,12 @@ export function ProfileView({ company, role, specialization, goal }: Props) {
             <dd className="mt-1 text-gray-900">{role || <span className="text-gray-400">Not set</span>}</dd>
           </div>
 
-          <div className="sm:col-span-2">
+          <div>
             <dt className="text-sm font-semibold text-gray-600">Specialization</dt>
             <dd className="mt-1 text-gray-900 whitespace-pre-wrap">{specialization || <span className="text-gray-400">Not set</span>}</dd>
           </div>
 
-          <div className="sm:col-span-2">
+          <div>
             <dt className="text-sm font-semibold text-gray-600">Goal</dt>
             <dd className="mt-1 text-gray-900 whitespace-pre-wrap">{goal || <span className="text-gray-400">Not set</span>}</dd>
           </div>
