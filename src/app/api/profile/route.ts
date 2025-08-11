@@ -1,37 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// Service role client for privileged auth lookups
-const supabaseServiceRole = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-// Helper to create a RLS-respecting user client with a bearer token
-const createUserClient = (token: string) => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      global: {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    }
-  );
-};
+import { createUserClient, getAuthFromRequest } from '@/lib/server-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    const auth = await getAuthFromRequest(request);
+    if (!auth) {
       return NextResponse.json({ profile: null }, { status: 200 });
     }
 
-    const token = authHeader.slice(7);
-    const { data: { user }, error: authError } = await supabaseServiceRole.auth.getUser(token);
-    if (authError || !user) {
-      return NextResponse.json({ profile: null }, { status: 200 });
-    }
+    const { user, token } = auth;
 
     const userClient = createUserClient(token);
     const { data: profile, error } = await userClient
@@ -54,16 +31,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    const auth = await getAuthFromRequest(request);
+    if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const token = authHeader.slice(7);
-    const { data: { user }, error: authError } = await supabaseServiceRole.auth.getUser(token);
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { user, token } = auth;
 
     const body = await request.json();
     const { company, role, specialization, goal } = body || {};

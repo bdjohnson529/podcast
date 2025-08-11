@@ -1,25 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { summarizeArticle, synthesize, ArticleInput } from '@/lib/news-summarize';
-
-// Service role client for privileged auth lookups
-const supabaseServiceRole = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-// Helper to create a RLS-respecting user client with a bearer token
-const createUserClient = (token: string) => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      global: {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    }
-  );
-};
+import { getAuthFromRequest, createUserClient } from '@/lib/server-auth';
 
 // Reuse feed fetching from sibling route by importing it
 async function fetchTopicArticles(userToken: string, topicId: string) {
@@ -52,17 +33,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'OpenAI API key not configured on server' }, { status: 500 });
     }
 
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    const auth = await getAuthFromRequest(request);
+    if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const token = authHeader.slice(7);
-
-    // Validate user exists
-    const { data: { user }, error: authError } = await supabaseServiceRole.auth.getUser(token);
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { user, token } = auth;
 
     const topicId = params.id;
     if (!topicId) return NextResponse.json({ error: 'Topic ID required' }, { status: 400 });
@@ -129,15 +104,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
+    const auth = await getAuthFromRequest(request);
+    if (!auth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const token = authHeader.slice(7);
-    const { data: { user }, error: authError } = await supabaseServiceRole.auth.getUser(token);
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { user } = auth;
 
     const jobId = request.nextUrl.searchParams.get('jobId') || '';
     if (!jobId) return NextResponse.json({ error: 'jobId is required' }, { status: 400 });
