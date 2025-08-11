@@ -57,7 +57,7 @@ function AddSuggestedButton({ suggestion, topicId, onAdded }: { suggestion: RssF
   );
 }
 
-export function TopicConfigure({ id, topic, onAdded }: { id: string; topic: { name?: string; description?: string | null }; onAdded?: () => void }) {
+export function TopicConfigure({ id, topic, onAdded, onDone }: { id: string; topic: { name?: string; description?: string | null }; onAdded?: () => void; onDone?: () => void }) {
   const [suggesting, setSuggesting] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<RssFeed[] | null>(null);
@@ -82,16 +82,32 @@ export function TopicConfigure({ id, topic, onAdded }: { id: string; topic: { na
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <button
-          className={`px-4 py-2 rounded text-white transition ${suggesting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
-          type="button"
-          onClick={onSuggest}
-          disabled={suggesting}
-        >
-          {suggesting ? 'Getting RSS Feeds...' : 'Get RSS Feeds'}
-        </button>
-        {suggestError && <span className="text-sm text-red-600">{suggestError}</span>}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            className={`px-4 py-2 rounded text-white transition ${suggesting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
+            type="button"
+            onClick={onSuggest}
+            disabled={suggesting}
+          >
+            {suggesting ? 'Getting RSS Feeds...' : 'Get RSS Feeds'}
+          </button>
+          {suggestError && <span className="text-sm text-red-600">{suggestError}</span>}
+        </div>
+        {onDone && (
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+            onClick={onDone}
+            aria-label="Save and view details"
+            title="Save and view details"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+              <path d="M17 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7l-4-4zM7 5h9v4H7V5zm9 14H8v-6h8v6z" />
+            </svg>
+            Save
+          </button>
+        )}
       </div>
 
       {suggestions && suggestions.length > 0 && (

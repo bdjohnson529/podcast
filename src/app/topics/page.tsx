@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { Sidebar } from '@/components/Sidebar';
@@ -12,12 +12,15 @@ import { TopicView } from '@/components/topics/TopicView';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { usePreserveScroll } from '@/components/topics/usePreserveScroll';
 import { TopicDetails } from '@/components/topics/TopicDetails';
+import { TopicConfigure } from '@/components/topics/TopicConfigure';
 
 export default function TopicsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const selectedId = searchParams.get('id');
+  const pane = searchParams.get('pane') === 'configure' ? 'configure' : 'details';
 
   const [topics, setTopics] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string }>>([]);
   const [active, setActive] = useTopicsTab();
@@ -38,6 +41,19 @@ export default function TopicsPage() {
   }, [user]);
 
   if (loading || !user) return <LoadingScreen />;
+
+  const selectedTopic = topics.find(t => t.id === selectedId) || null;
+
+  function setPane(next: 'details' | 'configure') {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === 'details') {
+      params.delete('pane');
+    } else {
+      params.set('pane', 'configure');
+    }
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
@@ -65,7 +81,16 @@ export default function TopicsPage() {
                 </div>
                 {selectedId && (
                   <div className="md:col-span-3">
-                    <TopicDetails id={selectedId} />
+                    {pane === 'configure' ? (
+                      <TopicConfigure
+                        id={selectedId}
+                        topic={{ name: selectedTopic?.name, description: selectedTopic?.description ?? null }}
+                        onAdded={() => { /* optional refresh trigger */ }}
+                        onDone={() => setPane('details')}
+                      />
+                    ) : (
+                      <TopicDetails id={selectedId} onConfigure={() => setPane('configure')} />
+                    )}
                   </div>
                 )}
               </div>
