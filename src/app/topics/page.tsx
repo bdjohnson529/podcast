@@ -7,7 +7,7 @@ import { LoadingScreen } from '@/components/LoadingScreen';
 import { Sidebar } from '@/components/Sidebar';
 import { useAuth } from '@/components/AuthProvider';
 
-import { TopicsTabs, useTopicsTab } from '@/components/topics/TopicsTab';
+import { useTopicsTab } from '@/components/topics/TopicsTab';
 import { TopicView } from '@/components/topics/TopicView';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { usePreserveScroll } from '@/components/topics/usePreserveScroll';
@@ -47,7 +47,6 @@ export default function TopicsPage() {
           <div className="max-w-6xl mx-auto space-y-4">
             <h1 className="text-3xl font-bold text-gray-900">Your Topics</h1>
             <p className="text-gray-600 mt-2">Create and manage your topics to organize feeds.</p>
-            <TopicsTabs active={active} onChange={setActive} />
             {active === 'view' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
@@ -57,12 +56,25 @@ export default function TopicsPage() {
                       onSelect={(id) => {
                         router.push(`/topics/${id}`);
                       }}
+                      onCreate={() => router.push('/topics?tab=create')}
                     />
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="mt-4">
+              <div className="mt-4 space-y-3">
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setActive('view')}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+                    aria-label="Back to topics"
+                    title="Back to topics"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path d="M15 18l-6-6 6-6"/></svg>
+                    Back
+                  </button>
+                </div>
                 <TopicForm
                   onSubmit={async (values) => {
                     const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
 import { LoadingScreen } from '@/components/LoadingScreen';
@@ -8,7 +8,6 @@ import { useAuth } from '@/components/AuthProvider';
 import { TopicDetails } from '@/components/topics/TopicDetails';
 import { TopicConfigure } from '@/components/topics/TopicConfigure';
 import { TopicNews } from '@/components/topics/TopicNews';
-import { TopicsTabs } from '@/components/topics/TopicsTab';
 
 export default function TopicIdPage() {
   const { user, loading } = useAuth();
@@ -40,16 +39,7 @@ export default function TopicIdPage() {
       <Sidebar />
       <div className="ml-64">
         <div className="p-8">
-          <div className="max-w-6xl mx-auto space-y-4">
-            <h1 className="text-3xl font-bold text-gray-900">Your Topics</h1>
-            <p className="text-gray-600 mt-2">Create and manage your topics to organize feeds.</p>
-            <TopicsTabs
-              active={'view'}
-              onChange={(t) => {
-                if (t === 'create') router.push('/topics?tab=create');
-                else router.push('/topics');
-              }}
-            />
+          <div className="max-w-6xl mx-auto">
 
             {pane === 'configure' ? (
               <TopicConfigure
@@ -57,11 +47,12 @@ export default function TopicIdPage() {
                 topic={{}}
                 onDone={() => setPane('details')}
                 onNews={() => setPane('news')}
+                onBack={() => router.push('/topics')}
               />
             ) : pane === 'news' ? (
               <TopicNews id={id} onBack={() => setPane('details')} />
             ) : (
-              <TopicDetails id={id} onConfigure={() => setPane('configure')} onNews={() => setPane('news')} />
+              <TopicDetails id={id} onConfigure={() => setPane('configure')} onNews={() => setPane('news')} onBack={() => router.push('/topics')} />
             )}
           </div>
         </div>

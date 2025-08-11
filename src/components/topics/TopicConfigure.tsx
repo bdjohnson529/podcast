@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { suggestFeeds } from '@/lib/client/rss';
 import type { RssFeed } from '@/lib/rss-suggest';
+import { TopicHeader } from './Header';
 
 function AddSuggestedButton({ suggestion, topicId, onAdded }: { suggestion: RssFeed, topicId: string, onAdded?: () => void }) {
   const [adding, setAdding] = useState(false);
@@ -57,7 +58,7 @@ function AddSuggestedButton({ suggestion, topicId, onAdded }: { suggestion: RssF
   );
 }
 
-export function TopicConfigure({ id, topic, onAdded, onDone, onNews }: { id: string; topic: { name?: string; description?: string | null }; onAdded?: () => void; onDone?: () => void; onNews?: () => void }) {
+export function TopicConfigure({ id, topic, onAdded, onDone, onNews, onBack }: { id: string; topic: { name?: string; description?: string | null }; onAdded?: () => void; onDone?: () => void; onNews?: () => void; onBack?: () => void }) {
   const [suggesting, setSuggesting] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<RssFeed[] | null>(null);
@@ -82,42 +83,45 @@ export function TopicConfigure({ id, topic, onAdded, onDone, onNews }: { id: str
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{topic.name || 'Configure Topic'}</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          {onNews && (
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
-              onClick={onNews}
-              aria-label="View news"
-              title="View news"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                <path d="M4 5h16a1 1 0 011 1v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6a1 1 0 011-1zm1 2v11a1 1 0 001 1h12a1 1 0 001-1V7H5zm3 2h8v2H8V9zm0 4h8v2H8v-2z" />
-              </svg>
-              News
-            </button>
-          )}
-          {onDone && (
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
-              onClick={onDone}
-              aria-label="Save and view details"
-              title="Save and view details"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                <path d="M17 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7l-4-4zM7 5h9v4H7V5zm9 14H8v-6h8v6z" />
-              </svg>
-              Save
-            </button>
-          )}
-        </div>
-      </div>
+    <>
+      <TopicHeader
+        title={topic.name || 'Configure Topic'}
+        onBack={onBack}
+        right={
+          <>
+            {onNews && (
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={onNews}
+                aria-label="View news"
+                title="View news"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                  <path d="M4 5h16a1 1 0 011 1v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6a1 1 0 011-1zm1 2v11a1 1 0 001 1h12a1 1 0 001-1V7H5zm3 2h8v2H8V9zm0 4h8v2H8v-2z" />
+                </svg>
+                News
+              </button>
+            )}
+            {onDone && (
+              <button
+                type="button"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+                onClick={onDone}
+                aria-label="Save and view details"
+                title="Save and view details"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                  <path d="M17 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V7l-4-4zM7 5h9v4H7V5zm9 14H8v-6h8v6z" />
+                </svg>
+                Save
+              </button>
+            )}
+          </>
+        }
+        className="mb-4"
+      />
+      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
 
       <div className="flex items-center gap-3">
         <button
@@ -156,6 +160,7 @@ export function TopicConfigure({ id, topic, onAdded, onDone, onNews }: { id: str
         </div>
       )}
     </div>
+    </>
   );
 }
 
