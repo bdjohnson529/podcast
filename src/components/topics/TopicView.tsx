@@ -36,7 +36,7 @@ export function TopicView({ topics, onSelect, selectedId }: Props) {
               <button
                 type="button"
                 aria-label={`Open topic ${t.name}`}
-                onClick={() => onSelect?.(t.id)}
+onClick={() => onSelect?.(t.id)}
                 className={`w-full text-left p-6 transition-colors ${isSelected ? 'bg-primary-50' : 'hover:bg-gray-50'}`}
               >
                 <div className="flex items-start justify-between">

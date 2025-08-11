@@ -6,7 +6,7 @@ import { TopicView } from '@/components/topics/TopicView';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { usePreserveScroll } from '@/components/topics/usePreserveScroll';
 
 export function TopicsMasterDetail({
@@ -52,10 +52,10 @@ export function TopicsMasterDetail({
                     <TopicView
                       topics={topics}
                       selectedId={selectedId}
-                      onSelect={(id) => {
+onSelect={(id) => {
                         const url = new URL(window.location.href);
-                        const tab = url.searchParams.get('tab') === 'create' ? '?tab=create' : '';
-                        router.push(`/topics/${id}${tab}`);
+                        url.searchParams.set('id', id);
+                        router.push(`/topics${url.search}`);
                       }}
                     />
                   </div>
