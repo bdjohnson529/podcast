@@ -37,18 +37,18 @@ export function TopicView({ topics, onSelect, selectedId }: Props) {
                 type="button"
                 aria-label={`Open topic ${t.name}`}
 onClick={() => onSelect?.(t.id)}
-                className={`w-full text-left p-6 transition-colors ${isSelected ? 'bg-primary-50' : 'hover:bg-gray-50'}`}
+                className={`w-full text-left p-6 transition-colors ${isSelected ? 'bg-purple-50' : 'hover:bg-gray-50'}`}
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className={`text-lg font-semibold ${isSelected ? 'text-primary-800' : 'text-primary-700 hover:underline'}`}>
+                    <h3 className={`text-lg font-semibold ${isSelected ? 'text-purple-800' : 'text-primary-700 hover:underline'}`}>
                       {t.name}
                     </h3>
                     {t.description ? (
                       <p className="text-gray-700 mt-1 whitespace-pre-wrap">{t.description}</p>
                     ) : null}
                   </div>
-                  <div className={`ml-6 shrink-0 text-sm ${isSelected ? 'text-primary-700' : 'text-gray-500'}`}>
+                  <div className={`ml-6 shrink-0 text-sm ${isSelected ? 'text-purple-700' : 'text-gray-500'}`}>
                     {new Date(t.created_at).toLocaleDateString()}
                   </div>
                 </div>

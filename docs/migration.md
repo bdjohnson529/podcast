@@ -27,3 +27,8 @@ src/components/feeds/FeedForm.tsx
 # Common prompts
 - Generate scaffolding
 - Rename components and all associated references
+
+
+# Concepts
+master detail view
+tabs
