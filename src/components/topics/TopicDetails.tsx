@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useState } from 'react';
 import { suggestFeeds } from '@/lib/client/rss';
@@ -15,7 +14,7 @@ interface TopicDetailsProps {
   id: string;
 }
 
-function AddSuggestedButton({ suggestion }: { suggestion: RssFeed }) {
+function AddSuggestedButton({ suggestion, topicId }: { suggestion: RssFeed, topicId: string }) {
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -25,7 +24,7 @@ function AddSuggestedButton({ suggestion }: { suggestion: RssFeed }) {
     setAdding(true);
     try {
       const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
-      const res = await fetch('/api/feeds', {
+      const res = await fetch(`/api/topics/${topicId}/feeds`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,6 +74,7 @@ export function TopicDetails({ id }: TopicDetailsProps) {
   const [suggesting, setSuggesting] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<RssFeed[] | null>(null);
+  const [feeds, setFeeds] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string; feed_url?: string | null; site_url?: string | null }>>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,6 +97,23 @@ export function TopicDetails({ id }: TopicDetailsProps) {
       }
     }
     if (id) load();
+    return () => { cancelled = true; };
+  }, [id]);
+
+  // Load feeds for this topic
+  useEffect(() => {
+    let cancelled = false;
+    async function loadFeeds() {
+      try {
+        const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
+        const res = await fetch(`/api/topics/${id}/feeds`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        const json = await res.json();
+        if (!cancelled) setFeeds(json.feeds || []);
+      } catch {
+        // ignore for now
+      }
+    }
+    if (id) loadFeeds();
     return () => { cancelled = true; };
   }, [id]);
 
@@ -184,13 +201,40 @@ export function TopicDetails({ id }: TopicDetailsProps) {
                       )}
                     </div>
                   </div>
-                  <AddSuggestedButton suggestion={s} />
+                  <AddSuggestedButton suggestion={s} topicId={id} />
                 </div>
               </li>
             ))}
           </ul>
         </div>
       )}
+
+
+      {/* Existing feeds under this topic */}
+      <div className="mt-6">
+        <h3 className="font-semibold text-gray-900 mb-2">Feeds in this Topic</h3>
+        {feeds.length === 0 ? (
+          <p className="text-gray-600">No feeds yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {feeds.map((f) => (
+              <li key={f.id} className="border border-gray-200 rounded p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900">{f.name}</p>
+                    {f.description && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{f.description}</p>}
+                    <div className="mt-1 space-x-3 text-sm">
+                      {f.feed_url && <a className="text-primary-700 hover:underline break-all" href={f.feed_url} target="_blank" rel="noreferrer">Feed</a>}
+                      {f.site_url && <a className="text-gray-700 hover:underline break-all" href={f.site_url} target="_blank" rel="noreferrer">Site</a>}
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-500">{new Date(f.created_at).toLocaleDateString()}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
     </div>
   );

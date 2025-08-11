@@ -7,7 +7,6 @@ import { Sidebar } from '@/components/Sidebar';
 import { TopicView } from '@/components/topics/TopicView';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { TopicDetails } from '@/components/topics/TopicDetails';
 
 export default function TopicsPage() {
   const { user, loading } = useAuth();
@@ -41,12 +40,7 @@ export default function TopicsPage() {
     if (user) load();
   }, [user]);
 
-  // Sync selected topic with URL search params (?topic=ID)
-  const searchParams = useSearchParams();
-  useEffect(() => {
-    const id = searchParams.get('topic');
-    setSelectedId(id);
-  }, [searchParams]);
+  // No inline selection; navigating to /topics/[id]
 
   async function onCreate(values: { name: string; description?: string }) {
     setError(null);
@@ -113,19 +107,13 @@ export default function TopicsPage() {
             )}
 
             {active === 'view' && (
-              selectedId ? (
-                <div className="mt-4 space-y-4">
-                  <TopicDetails id={selectedId} />
-                </div>
-              ) : (
+              (
                 <div className="mt-4">
                   <TopicView
                     topics={topics}
                     onSelect={(id) => {
-                      setSelectedId(id);
-                      const url = new URL(window.location.href);
-                      url.searchParams.set('topic', id);
-                      window.history.replaceState(null, '', url.toString());
+                      // Navigate to dedicated topic page
+                      window.location.href = `/topics/${id}`;
                     }}
                   />
                 </div>
