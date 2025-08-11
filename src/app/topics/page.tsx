@@ -28,10 +28,9 @@ export default function TopicsPage() {
     async function load() {
       try {
         const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
-        // Temporary: reuse feeds endpoint until /api/topics exists
-        const res = await fetch('/api/feeds', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        const res = await fetch('/api/topics', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const json = await res.json();
-        setTopics(json.feeds || []);
+        setTopics(json.topics || []);
       } catch (e) {
         console.error('Failed to load topics', e);
         setError('Failed to load topics');
@@ -52,8 +51,7 @@ export default function TopicsPage() {
   async function onCreate(values: { name: string; description?: string }) {
     setError(null);
     const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
-    // Temporary: creation still hits /api/feeds until /api/topics exists
-    const res = await fetch('/api/feeds', {
+    const res = await fetch('/api/topics', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +64,7 @@ export default function TopicsPage() {
       throw new Error(j.error || 'Failed to create topic');
     }
     const j = await res.json();
-    setTopics((prev) => [j.feed, ...prev]);
+    setTopics((prev) => [j.topic, ...prev]);
   }
 
   if (loading || !user || initializing) {

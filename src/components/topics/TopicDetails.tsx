@@ -83,13 +83,13 @@ export function TopicDetails({ id }: TopicDetailsProps) {
         setError(null);
         setLoading(true);
         const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
-        const res = await fetch(`/api/feeds/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        const res = await fetch(`/api/topics/${id}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
           throw new Error(j.error || 'Failed to load topic');
         }
         const json = await res.json();
-        if (!cancelled) setTopic(json.feed || null);
+        if (!cancelled) setTopic(json.topic || null);
       } catch (e: any) {
         if (!cancelled) setError(e?.message || 'Failed to load topic');
       } finally {
