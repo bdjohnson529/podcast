@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/Sidebar';
 import { suggestFeeds } from '@/lib/client/rss';
 import type { RssFeed } from '@/lib/rss-suggest';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { TopicsMasterDetail } from '@/components/topics/TopicsMasterDetail';
 
 interface TopicLikeFeed {
   id: string;
@@ -78,6 +78,8 @@ export default function TopicDetailsPage({ params }: { params: { id: string } })
   const [suggestions, setSuggestions] = useState<RssFeed[] | null>(null);
   const [feeds, setFeeds] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string; feed_url?: string | null; site_url?: string | null }>>([]);
 
+
+  // Load selected topic details
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -144,104 +146,96 @@ export default function TopicDetailsPage({ params }: { params: { id: string } })
     }
   }
 
-  if (loading) {
+  if (loading && !topic) {
     return <LoadingScreen />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
-      <Sidebar />
-      <div className="ml-64">
-        <div className="p-8">
-          <div className="max-w-4xl mx-auto space-y-4">
-            {error ? (
-              <div className="bg-white rounded-xl border border-red-200 p-6 text-red-700">{error}</div>
-            ) : !topic ? (
-              <div className="bg-white rounded-xl border border-gray-200 p-6 text-gray-500">Topic not found.</div>
+    <TopicsMasterDetail
+      selectedId={id}
+      rightPane={error ? (
+        <div className="bg-white rounded-xl border border-red-200 p-6 text-red-700">{error}</div>
+      ) : !topic ? (
+        <div className="bg-white rounded-xl border border-gray-200 p-6 text-gray-500">Topic not found.</div>
+      ) : (
+        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">{topic.name}</h2>
+              <p className="text-gray-500 text-sm mt-1">Created {new Date(topic.created_at).toLocaleString()}</p>
+            </div>
+          </div>
+
+          {topic.description ? (
+            <p className="text-gray-800 whitespace-pre-wrap">{topic.description}</p>
+          ) : (
+            <p className="text-gray-500 italic">No description provided.</p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              className={`px-4 py-2 rounded text-white transition ${suggesting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
+              type="button"
+              onClick={onSuggest}
+              disabled={suggesting}
+            >
+              {suggesting ? 'Getting RSS Feeds...' : 'Get RSS Feeds'}
+            </button>
+            {suggestError && <span className="text-sm text-red-600">{suggestError}</span>}
+          </div>
+
+          {suggestions && suggestions.length > 0 && (
+            <div className="mt-4">
+              <h3 className="font-semibold text-gray-900 mb-2">Suggested Feeds</h3>
+              <ul className="space-y-2">
+                {suggestions.map((s, idx) => (
+                  <li key={`${s.feedUrl}-${idx}`} className="border border-gray-200 rounded p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">{s.title}</p>
+                        {s.description && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{s.description}</p>}
+                        <div className="mt-1 space-x-3 text-sm">
+                          <a className="text-primary-700 hover:underline break-all" href={s.feedUrl} target="_blank" rel="noreferrer">Feed</a>
+                          {s.siteUrl && (
+                            <a className="text-gray-700 hover:underline break-all" href={s.siteUrl} target="_blank" rel="noreferrer">Site</a>
+                          )}
+                        </div>
+                      </div>
+                      <AddSuggestedButton suggestion={s} topicId={id} onAdded={refreshFeeds} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="mt-6">
+            <h3 className="font-semibold text-gray-900 mb-2">Feeds in this Topic</h3>
+            {feeds.length === 0 ? (
+              <p className="text-gray-600">No feeds yet.</p>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{topic.name}</h2>
-                    <p className="text-gray-500 text-sm mt-1">Created {new Date(topic.created_at).toLocaleString()}</p>
-                  </div>
-                </div>
-
-                {topic.description ? (
-                  <p className="text-gray-800 whitespace-pre-wrap">{topic.description}</p>
-                ) : (
-                  <p className="text-gray-500 italic">No description provided.</p>
-                )}
-
-                <div className="flex items-center gap-3">
-                  <button
-                    className={`px-4 py-2 rounded text-white transition ${suggesting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
-                    type="button"
-                    onClick={onSuggest}
-                    disabled={suggesting}
-                  >
-                    {suggesting ? 'Getting RSS Feeds...' : 'Get RSS Feeds'}
-                  </button>
-                  {suggestError && <span className="text-sm text-red-600">{suggestError}</span>}
-                </div>
-
-                {suggestions && suggestions.length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="font-semibold text-gray-900 mb-2">Suggested Feeds</h3>
-                    <ul className="space-y-2">
-                      {suggestions.map((s, idx) => (
-                        <li key={`${s.feedUrl}-${idx}`} className="border border-gray-200 rounded p-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-gray-900">{s.title}</p>
-                              {s.description && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{s.description}</p>}
-                              <div className="mt-1 space-x-3 text-sm">
-                                <a className="text-primary-700 hover:underline break-all" href={s.feedUrl} target="_blank" rel="noreferrer">Feed</a>
-                                {s.siteUrl && (
-                                  <a className="text-gray-700 hover:underline break-all" href={s.siteUrl} target="_blank" rel="noreferrer">Site</a>
-                                )}
-                              </div>
-                            </div>
-                            <AddSuggestedButton suggestion={s} topicId={id} onAdded={refreshFeeds} />
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                <div className="mt-6">
-                  <h3 className="font-semibold text-gray-900 mb-2">Feeds in this Topic</h3>
-                  {feeds.length === 0 ? (
-                    <p className="text-gray-600">No feeds yet.</p>
-                  ) : (
-                    <ul className="space-y-2">
-                      {feeds.map((f) => (
-                        <li key={f.id} className="border border-gray-200 rounded p-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-gray-900">{f.name}</p>
-                              {f.description && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{f.description}</p>}
-                              <div className="mt-1 space-x-3 text-sm">
-                                {f.feed_url && <a className="text-primary-700 hover:underline break-all" href={f.feed_url} target="_blank" rel="noreferrer">Feed</a>}
-                                {f.site_url && <a className="text-gray-700 hover:underline break-all" href={f.site_url} target="_blank" rel="noreferrer">Site</a>}
-                              </div>
-                            </div>
-                            <div className="text-sm text-gray-500">{new Date(f.created_at).toLocaleDateString()}</div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-              </div>
+              <ul className="space-y-2">
+                {feeds.map((f) => (
+                  <li key={f.id} className="border border-gray-200 rounded p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">{f.name}</p>
+                        {f.description && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{f.description}</p>}
+                        <div className="mt-1 space-x-3 text-sm">
+                          {f.feed_url && <a className="text-primary-700 hover:underline break-all" href={f.feed_url} target="_blank" rel="noreferrer">Feed</a>}
+                          {f.site_url && <a className="text-gray-700 hover:underline break-all" href={f.site_url} target="_blank" rel="noreferrer">Site</a>}
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-500">{new Date(f.created_at).toLocaleDateString()}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
-
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    />
   );
 }
 

@@ -1,139 +1,33 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/components/AuthProvider';
-import { Sidebar } from '@/components/Sidebar';
-import { TopicView } from '@/components/topics/TopicView';
-import { TopicForm } from '@/components/topics/TopicForm';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/components/AuthProvider';
+import { TopicsMasterDetail } from '@/components/topics/TopicsMasterDetail';
 
 export default function TopicsPage() {
   const { user, loading } = useAuth();
-  const router = useRouter();
-  const [topics, setTopics] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string }>>([]);
-  const [initializing, setInitializing] = useState(true);
-  const [active, setActive] = useState<'view' | 'create'>('view');
-  const [error, setError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const pathname = usePathname();
+  const parts = (pathname || '').split('/').filter(Boolean);
+  const selectedId = parts.length >= 2 && parts[0] === 'topics' ? (parts[1] || null) : null;
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/landing');
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
-        const res = await fetch('/api/topics', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-        const json = await res.json();
-        setTopics(json.topics || []);
-      } catch (e) {
-        console.error('Failed to load topics', e);
-        setError('Failed to load topics');
-      } finally {
-        setInitializing(false);
-      }
-    }
-    if (user) load();
-  }, [user]);
-
-  // No inline selection; navigating to /topics/[id]
-
-  async function onCreate(values: { name: string; description?: string }) {
-    setError(null);
-    const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
-    const res = await fetch('/api/topics', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(values),
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}));
-      throw new Error(j.error || 'Failed to create topic');
-    }
-    const j = await res.json();
-    setTopics((prev) => [j.topic, ...prev]);
-  }
-
-  if (loading || !user || initializing) {
-    return <LoadingScreen />;
-  }
+  if (loading || !user) return <LoadingScreen />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
-      <Sidebar />
-      <div className="ml-64">
-        <div className="p-8">
-          <div className="max-w-4xl mx-auto space-y-4">
-            <h1 className="text-3xl font-bold text-gray-900">Your Topics</h1>
-            <p className="text-gray-600 mt-2">Create and manage your topics to organize feeds.</p>
-
-            {/* Tabs header */}
-            <div className="mb-4 border-b border-gray-200">
-              <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                {[{ key: 'view' as const, label: 'Topics' }, { key: 'create' as const, label: 'Create' }].map(t => (
-                  <button
-                    key={t.key}
-                    className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                      active === t.key
-                        ? 'border-primary-600 text-primary-700'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                    onClick={() => {
-                      setActive(t.key);
-                      if (t.key === 'view') {
-                        // Clear selected topic and remove ?topic from URL
-                        setSelectedId(null);
-                        const url = new URL(window.location.href);
-                        url.searchParams.delete('topic');
-                        window.history.replaceState(null, '', url.toString());
-                      }
-                    }}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </nav>
-            </div>
-
-            {error && (
-              <div className="bg-white rounded-xl border border-red-200 p-4 text-red-700">{error}</div>
-            )}
-
-            {active === 'view' && (
-              (
-                <div className="mt-4">
-                  <TopicView
-                    topics={topics}
-                    onSelect={(id) => {
-                      // Navigate to dedicated topic page
-                      window.location.href = `/topics/${id}`;
-                    }}
-                  />
-                </div>
-              )
-            )}
-
-            {active === 'create' && (
-              <div className="mt-4">
-                <TopicForm
-                  onSubmit={async (values) => {
-                    await onCreate(values);
-                    setActive('view');
-                  }}
-                />
-              </div>
-            )}
-          </div>
+    <TopicsMasterDetail
+      selectedId={selectedId}
+      rightPane={selectedId ? (
+        <iframe
+          src={`/topics/${selectedId}`}
+          className="w-full h-[70vh] rounded-xl border border-gray-200 bg-white"
+          title="Topic Details"
+        />
+      ) : (
+        <div className="bg-white rounded-xl border border-gray-200 p-6 text-gray-600">
+          Select a topic from the list to view details.
         </div>
-      </div>
-    </div>
+      )}
+    />
   );
 }
 
