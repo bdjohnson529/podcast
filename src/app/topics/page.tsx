@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { Sidebar } from '@/components/Sidebar';
-import { FeedView } from '@/components/feeds/FeedView';
-import { FeedForm } from '@/components/feeds/FeedForm';
+import { TopicView } from '@/components/topics/TopicView';
+import { TopicForm } from '@/components/topics/TopicForm';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { FeedDetails } from '@/components/feeds/FeedDetails';
+import { TopicDetails } from '@/components/topics/TopicDetails';
 
-export default function FeedsPage() {
+export default function TopicsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [feeds, setFeeds] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string }>>([]);
+  const [topics, setTopics] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string }>>([]);
   const [initializing, setInitializing] = useState(true);
   const [active, setActive] = useState<'view' | 'create'>('view');
   const [error, setError] = useState<string | null>(null);
@@ -28,12 +28,13 @@ export default function FeedsPage() {
     async function load() {
       try {
         const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
+        // Temporary: reuse feeds endpoint until /api/topics exists
         const res = await fetch('/api/feeds', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
         const json = await res.json();
-        setFeeds(json.feeds || []);
+        setTopics(json.feeds || []);
       } catch (e) {
-        console.error('Failed to load feeds', e);
-        setError('Failed to load feeds');
+        console.error('Failed to load topics', e);
+        setError('Failed to load topics');
       } finally {
         setInitializing(false);
       }
@@ -41,16 +42,17 @@ export default function FeedsPage() {
     if (user) load();
   }, [user]);
 
-  // Sync selected feed with URL search params (?feed=ID)
+  // Sync selected topic with URL search params (?topic=ID)
   const searchParams = useSearchParams();
   useEffect(() => {
-    const id = searchParams.get('feed');
+    const id = searchParams.get('topic');
     setSelectedId(id);
   }, [searchParams]);
 
   async function onCreate(values: { name: string; description?: string }) {
     setError(null);
     const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
+    // Temporary: creation still hits /api/feeds until /api/topics exists
     const res = await fetch('/api/feeds', {
       method: 'POST',
       headers: {
@@ -61,10 +63,10 @@ export default function FeedsPage() {
     });
     if (!res.ok) {
       const j = await res.json().catch(() => ({}));
-      throw new Error(j.error || 'Failed to create feed');
+      throw new Error(j.error || 'Failed to create topic');
     }
     const j = await res.json();
-    setFeeds((prev) => [j.feed, ...prev]);
+    setTopics((prev) => [j.feed, ...prev]);
   }
 
   if (loading || !user || initializing) {
@@ -77,13 +79,13 @@ export default function FeedsPage() {
       <div className="ml-64">
         <div className="p-8">
           <div className="max-w-4xl mx-auto space-y-4">
-            <h1 className="text-3xl font-bold text-gray-900">Your Feeds</h1>
-            <p className="text-gray-600 mt-2">Create and manage your personalized podcast feeds.</p>
+            <h1 className="text-3xl font-bold text-gray-900">Your Topics</h1>
+            <p className="text-gray-600 mt-2">Create and manage your topics to organize feeds.</p>
 
-            {/* Tabs header (mirrors ProfileTabs) */}
+            {/* Tabs header */}
             <div className="mb-4 border-b border-gray-200">
               <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                {[{ key: 'view' as const, label: 'Feeds' }, { key: 'create' as const, label: 'Create' }].map(t => (
+                {[{ key: 'view' as const, label: 'Topics' }, { key: 'create' as const, label: 'Create' }].map(t => (
                   <button
                     key={t.key}
                     className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
@@ -94,10 +96,10 @@ export default function FeedsPage() {
                     onClick={() => {
                       setActive(t.key);
                       if (t.key === 'view') {
-                        // Clear selected feed and remove ?feed from URL
+                        // Clear selected topic and remove ?topic from URL
                         setSelectedId(null);
                         const url = new URL(window.location.href);
-                        url.searchParams.delete('feed');
+                        url.searchParams.delete('topic');
                         window.history.replaceState(null, '', url.toString());
                       }
                     }}
@@ -115,16 +117,16 @@ export default function FeedsPage() {
             {active === 'view' && (
               selectedId ? (
                 <div className="mt-4 space-y-4">
-                  <FeedDetails id={selectedId} />
+                  <TopicDetails id={selectedId} />
                 </div>
               ) : (
                 <div className="mt-4">
-                  <FeedView
-                    feeds={feeds}
+                  <TopicView
+                    topics={topics}
                     onSelect={(id) => {
                       setSelectedId(id);
                       const url = new URL(window.location.href);
-                      url.searchParams.set('feed', id);
+                      url.searchParams.set('topic', id);
                       window.history.replaceState(null, '', url.toString());
                     }}
                   />
@@ -134,7 +136,7 @@ export default function FeedsPage() {
 
             {active === 'create' && (
               <div className="mt-4">
-                <FeedForm
+                <TopicForm
                   onSubmit={async (values) => {
                     await onCreate(values);
                     setActive('view');

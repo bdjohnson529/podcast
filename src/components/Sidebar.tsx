@@ -40,17 +40,17 @@ export function Sidebar() {
             <span className="font-medium">Create</span>
           </Link>
 
-          {/* Feeds Tab */}
+          {/* Topics Tab */}
           <Link
-            href="/feeds"
+            href="/topics"
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-              pathname.startsWith('/feeds')
+              pathname.startsWith('/topics')
                 ? 'bg-primary-600 text-white shadow-sm'
                 : 'text-gray-700 hover:bg-gray-50'
             }`}
           >
             <RssIcon className="w-5 h-5" />
-            <span className="font-medium">Feeds</span>
+            <span className="font-medium">Topics</span>
           </Link>
 
           {/* Profile Link */}
