@@ -81,18 +81,10 @@ export function TopicConfigure({ id, topic, onAdded, onDone }: { id: string; top
   }
 
   return (
-    <div className="space-y-4">
+    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            className={`px-4 py-2 rounded text-white transition ${suggesting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
-            type="button"
-            onClick={onSuggest}
-            disabled={suggesting}
-          >
-            {suggesting ? 'Getting RSS Feeds...' : 'Get RSS Feeds'}
-          </button>
-          {suggestError && <span className="text-sm text-red-600">{suggestError}</span>}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">{topic.name || 'Configure Topic'}</h2>
         </div>
         {onDone && (
           <button
@@ -108,6 +100,18 @@ export function TopicConfigure({ id, topic, onAdded, onDone }: { id: string; top
             Save
           </button>
         )}
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          className={`px-4 py-2 rounded text-white transition ${suggesting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}
+          type="button"
+          onClick={onSuggest}
+          disabled={suggesting}
+        >
+          {suggesting ? 'Getting RSS Feeds...' : 'Get RSS Feeds'}
+        </button>
+        {suggestError && <span className="text-sm text-red-600">{suggestError}</span>}
       </div>
 
       {suggestions && suggestions.length > 0 && (
