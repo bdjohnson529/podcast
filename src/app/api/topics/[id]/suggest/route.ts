@@ -121,8 +121,8 @@ async function filterValidFeeds(feeds: RssFeed[], concurrency = 6): Promise<RssF
   return results;
 }
 
-// Allow only POST for controlled prompting
-export async function POST(request: NextRequest) {
+// POST /api/topics/[id]/suggest
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const startedAt = Date.now();
   try {
     // Validate API key early with a clear message
@@ -144,9 +144,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const topicId = params.id;
     const { query, limit } = parsed.data;
     const userPromptIn = typeof (json as any)?.userPrompt === 'string' ? (json as any).userPrompt.trim() : '';
-    console.info('[rss-suggest] Request received', { query, limit, userPrompt: userPromptIn ? (userPromptIn.length + ' chars') : 'none' });
+    console.info('[rss-suggest] Request received', { path: `/api/topics/${topicId}/suggest`, query, limit, userPrompt: userPromptIn ? (userPromptIn.length + ' chars') : 'none' });
 
     // You will refine the system/user prompts.
     // We request a strict JSON schema so the response is reliable.
@@ -276,3 +277,4 @@ Output Structure (return as plain JSON — no markdown, comments, or extra text)
     );
   }
 }
+

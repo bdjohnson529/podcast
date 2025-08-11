@@ -1,10 +1,11 @@
 import { RssSuggestRequest, RssSuggestResponse } from '@/lib/rss-suggest';
 
 export async function suggestFeeds(
+  topicId: string,
   params: RssSuggestRequest,
   options?: { accessToken?: string; userPrompt?: string }
 ): Promise<RssSuggestResponse> {
-  const res = await fetch('/api/feeds/suggest', {
+  const res = await fetch(`/api/topics/${topicId}/suggest`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

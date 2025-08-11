@@ -69,6 +69,7 @@ export function TopicConfigure({ id, topic, onAdded, onDone }: { id: string; top
     try {
       const token = (await (await import('@/lib/supabase')).supabase.auth.getSession()).data.session?.access_token;
       const { feeds } = await suggestFeeds(
+        id,
         { query: topic.name || topic.description || 'podcast topic', limit: 5 },
         { accessToken: token },
       );
