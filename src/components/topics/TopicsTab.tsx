@@ -1,17 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 export type TopicsTab = 'view' | 'create';
 
 export function useTopicsTab(): [TopicsTab, (tab: TopicsTab) => void] {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const active = useMemo<TopicsTab>(() => (searchParams.get('tab') === 'create' ? 'create' : 'view'), [searchParams]);
+  const active = useMemo<TopicsTab>(
+    () => (searchParams.get('tab') === 'create' ? 'create' : 'view'),
+    [searchParams]
+  );
   function setActive(tab: TopicsTab) {
-    const url = new URL(window.location.href);
-    if (tab === 'create') url.searchParams.set('tab', 'create'); else url.searchParams.delete('tab');
-    window.history.replaceState(null, '', url.toString());
+    const params = new URLSearchParams(searchParams.toString());
+    if (tab === 'create') params.set('tab', 'create'); else params.delete('tab');
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
   }
   return [active, setActive];
 }
