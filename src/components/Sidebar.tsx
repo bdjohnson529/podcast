@@ -44,7 +44,7 @@ export function Sidebar() {
           <Link
             href="/topics"
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-              pathname.startsWith('/topics')
+              pathname === '/topics'
                 ? 'bg-primary-600 text-white shadow-sm'
                 : 'text-gray-700 hover:bg-gray-50'
             }`}
