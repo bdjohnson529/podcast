@@ -49,7 +49,7 @@ export default function TopicsPage() {
             <p className="text-gray-600 mt-2">Create and manage your topics to organize feeds.</p>
             <TopicsTabs active={active} onChange={setActive} />
             {active === 'view' ? (
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+              <div className={`grid grid-cols-1 ${selectedId ? 'md:grid-cols-5' : 'md:grid-cols-2'} gap-6`}>
                 <div className="md:col-span-2">
                   <div ref={listRef} className="max-h-[calc(100vh-220px)] overflow-auto pr-1">
                     <TopicView
@@ -63,9 +63,11 @@ export default function TopicsPage() {
                     />
                   </div>
                 </div>
-                <div className="md:col-span-3">
-                  <TopicDetails id={selectedId} />
-                </div>
+                {selectedId && (
+                  <div className="md:col-span-3">
+                    <TopicDetails id={selectedId} />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="mt-4">

@@ -15,7 +15,13 @@ export function useTopicsTab(): [TopicsTab, (tab: TopicsTab) => void] {
   );
   function setActive(tab: TopicsTab) {
     const params = new URLSearchParams(searchParams.toString());
-    if (tab === 'create') params.set('tab', 'create'); else params.delete('tab');
+    if (tab === 'create') {
+      params.set('tab', 'create');
+    } else {
+      // Switching to the Topics (view) tab: remove tab flag and clear selected topic
+      params.delete('tab');
+      params.delete('id');
+    }
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
   }
