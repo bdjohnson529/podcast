@@ -1,7 +1,7 @@
 "use client";
 
 import { Sidebar } from '@/components/Sidebar';
-import { TopicsTabs, useTopicsTab } from '@/components/topics/useTopicsTab';
+import { TopicsTabs, useTopicsTab } from '@/components/topics/TopicsTab';
 import { TopicView } from '@/components/topics/TopicView';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { useEffect, useState } from 'react';
