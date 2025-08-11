@@ -11,7 +11,7 @@ interface TopicLikeFeed {
 }
 
 
-export function TopicDetails({ id, onConfigure }: { id: string | null; onConfigure?: () => void }) {
+export function TopicDetails({ id, onConfigure, onNews }: { id: string | null; onConfigure?: () => void; onNews?: () => void }) {
   const [topic, setTopic] = useState<TopicLikeFeed | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,20 +105,36 @@ export function TopicDetails({ id, onConfigure }: { id: string | null; onConfigu
           <h2 className="text-2xl font-bold text-gray-900">{topic.name}</h2>
           <p className="text-gray-500 text-sm mt-1">Created {new Date(topic.created_at).toLocaleString()}</p>
         </div>
-        {onConfigure && (
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
-            onClick={onConfigure}
-            aria-label="Configure topic"
-            title="Configure topic"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-              <path d="M19.14 12.94a7.997 7.997 0 000-1.88l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.99 7.99 0 00-1.63-.95l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.95l-2.39-.96a.5.5 0 00-.6.22L2.71 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32c.14.24.44.34.7.22l2.39-.96c.51.41 1.05.72 1.63.95l.36 2.54c.06.25.26.42.5.42h3.84c.24 0 .44-.17.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.95l2.39.96c.26.11.56.01.7-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z" />
-            </svg>
-            Configure
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {onNews && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+              onClick={onNews}
+              aria-label="View news"
+              title="View news"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M4 5h16a1 1 0 011 1v12a3 3 0 01-3 3H6a3 3 0 01-3-3V6a1 1 0 011-1zm1 2v11a1 1 0 001 1h12a1 1 0 001-1V7H5zm3 2h8v2H8V9zm0 4h8v2H8v-2z" />
+              </svg>
+              News
+            </button>
+          )}
+          {onConfigure && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded border border-gray-300 text-sm text-gray-700 hover:bg-gray-50"
+              onClick={onConfigure}
+              aria-label="Configure topic"
+              title="Configure topic"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M19.14 12.94a7.997 7.997 0 000-1.88l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.99 7.99 0 00-1.63-.95l-.36-2.54a.5.5 0 00-.5-.42h-3.84a.5.5 0 00-.5.42l-.36 2.54c-.58.23-1.12.54-1.63.95l-2.39-.96a.5.5 0 00-.6.22L2.71 8.84a.5.5 0 00.12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 00-.12.64l1.92 3.32c.14.24.44.34.7.22l2.39-.96c.51.41 1.05.72 1.63.95l.36 2.54c.06.25.26.42.5.42h3.84c.24 0 .44-.17.5-.42l.36-2.54c.58-.23 1.12-.54 1.63-.95l2.39.96c.26.11.56.01.7-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z" />
+              </svg>
+              Configure
+            </button>
+          )}
+        </div>
       </div>
 
       {topic.description ? (

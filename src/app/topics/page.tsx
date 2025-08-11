@@ -13,6 +13,7 @@ import { TopicForm } from '@/components/topics/TopicForm';
 import { usePreserveScroll } from '@/components/topics/usePreserveScroll';
 import { TopicDetails } from '@/components/topics/TopicDetails';
 import { TopicConfigure } from '@/components/topics/TopicConfigure';
+import { TopicNews } from '@/components/topics/TopicNews';
 
 export default function TopicsPage() {
   const { user, loading } = useAuth();
@@ -20,7 +21,8 @@ export default function TopicsPage() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const selectedId = searchParams.get('id');
-  const pane = searchParams.get('pane') === 'configure' ? 'configure' : 'details';
+  const paneParam = searchParams.get('pane');
+  const pane: 'details' | 'configure' | 'news' = paneParam === 'configure' ? 'configure' : paneParam === 'news' ? 'news' : 'details';
 
   const [topics, setTopics] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string }>>([]);
   const [active, setActive] = useTopicsTab();
@@ -44,12 +46,14 @@ export default function TopicsPage() {
 
   const selectedTopic = topics.find(t => t.id === selectedId) || null;
 
-  function setPane(next: 'details' | 'configure') {
+  function setPane(next: 'details' | 'configure' | 'news') {
     const params = new URLSearchParams(searchParams.toString());
     if (next === 'details') {
       params.delete('pane');
-    } else {
+    } else if (next === 'configure') {
       params.set('pane', 'configure');
+    } else if (next === 'news') {
+      params.set('pane', 'news');
     }
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname);
@@ -87,9 +91,12 @@ export default function TopicsPage() {
                         topic={{ name: selectedTopic?.name, description: selectedTopic?.description ?? null }}
                         onAdded={() => { /* optional refresh trigger */ }}
                         onDone={() => setPane('details')}
+                        onNews={() => setPane('news')}
                       />
+                    ) : pane === 'news' ? (
+                      <TopicNews id={selectedId} onBack={() => setPane('details')} />
                     ) : (
-                      <TopicDetails id={selectedId} onConfigure={() => setPane('configure')} />
+                      <TopicDetails id={selectedId} onConfigure={() => setPane('configure')} onNews={() => setPane('news')} />
                     )}
                   </div>
                 )}
