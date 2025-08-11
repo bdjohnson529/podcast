@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { Sidebar } from '@/components/Sidebar';
@@ -11,18 +11,11 @@ import { TopicsTabs, useTopicsTab } from '@/components/topics/TopicsTab';
 import { TopicView } from '@/components/topics/TopicView';
 import { TopicForm } from '@/components/topics/TopicForm';
 import { usePreserveScroll } from '@/components/topics/usePreserveScroll';
-import { TopicDetails } from '@/components/topics/TopicDetails';
-import { TopicConfigure } from '@/components/topics/TopicConfigure';
-import { TopicNews } from '@/components/topics/TopicNews';
 
 export default function TopicsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const selectedId = searchParams.get('id');
-  const paneParam = searchParams.get('pane');
-  const pane: 'details' | 'configure' | 'news' = paneParam === 'configure' ? 'configure' : paneParam === 'news' ? 'news' : 'details';
+  const selectedId = null; // No inline detail pane on this page anymore
 
   const [topics, setTopics] = useState<Array<{ id: string; name: string; description?: string | null; created_at: string }>>([]);
   const [active, setActive] = useTopicsTab();
@@ -44,20 +37,7 @@ export default function TopicsPage() {
 
   if (loading || !user) return <LoadingScreen />;
 
-  const selectedTopic = topics.find(t => t.id === selectedId) || null;
-
-  function setPane(next: 'details' | 'configure' | 'news') {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === 'details') {
-      params.delete('pane');
-    } else if (next === 'configure') {
-      params.set('pane', 'configure');
-    } else if (next === 'news') {
-      params.set('pane', 'news');
-    }
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname);
-  }
+  const selectedTopic = null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-purple-50">
@@ -69,37 +49,17 @@ export default function TopicsPage() {
             <p className="text-gray-600 mt-2">Create and manage your topics to organize feeds.</p>
             <TopicsTabs active={active} onChange={setActive} />
             {active === 'view' ? (
-              <div className={`grid grid-cols-1 ${selectedId ? 'md:grid-cols-5' : 'md:grid-cols-2'} gap-6`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <div ref={listRef} className="max-h-[calc(100vh-220px)] overflow-auto pr-1">
                     <TopicView
                       topics={topics}
-                      selectedId={selectedId}
                       onSelect={(id) => {
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('id', id);
-                        router.push(`/topics${url.search}`);
+                        router.push(`/topics/${id}`);
                       }}
                     />
                   </div>
                 </div>
-                {selectedId && (
-                  <div className="md:col-span-3">
-                    {pane === 'configure' ? (
-                      <TopicConfigure
-                        id={selectedId}
-                        topic={{ name: selectedTopic?.name, description: selectedTopic?.description ?? null }}
-                        onAdded={() => { /* optional refresh trigger */ }}
-                        onDone={() => setPane('details')}
-                        onNews={() => setPane('news')}
-                      />
-                    ) : pane === 'news' ? (
-                      <TopicNews id={selectedId} onBack={() => setPane('details')} />
-                    ) : (
-                      <TopicDetails id={selectedId} onConfigure={() => setPane('configure')} onNews={() => setPane('news')} />
-                    )}
-                  </div>
-                )}
               </div>
             ) : (
               <div className="mt-4">
