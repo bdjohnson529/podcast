@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
-import { Library } from '@/components/Library';
+import { Library } from '@/components/library/Library';
 import { AuthBanner } from '@/components/AuthBanner';
 import { Sidebar } from '@/components/Sidebar';
 import { Analytics } from "@vercel/analytics/next"

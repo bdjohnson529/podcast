@@ -98,15 +98,10 @@ const PersonalLibrary: React.FC<Props> = ({ loading, episodes, scope, session, o
                     </h4>
                   </div>
 
-                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">Topic: {episode.input?.topic || episode.topic}</p>
-
                   <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                     <div className="flex items-center space-x-1">
-                      <ClockIcon className="h-3 w-3" />
-                      <span>~{episode.script?.estimatedDuration || episode.estimated_duration || 'N/A'}m</span>
+                      <span>~{episode.script?.estimatedDuration || episode.estimated_duration || 'N/A'} minute listen</span>
                     </div>
-                    <div>Target: {episode.input?.duration || episode.duration || 'N/A'}m</div>
-                    <div>{episode.input?.familiarity || episode.familiarity || 'unknown'} level</div>
                   </div>
 
                   <div className="text-xs text-gray-400 mt-1">

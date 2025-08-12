@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { Cog6ToothIcon, RssIcon } from '@heroicons/react/24/outline';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -38,6 +38,18 @@ export function Sidebar() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             <span className="font-medium">Create</span>
+          </Link>
+          {/* Topics Tab */}
+          <Link
+            href="/topics"
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+              (pathname === '/topics' || pathname?.startsWith('/topics/'))
+                ? 'bg-primary-600 text-white shadow-sm'
+                : 'text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <RssIcon className="w-5 h-5" />
+            <span className="font-medium">Topics</span>
           </Link>
 
           {/* Profile Link */}

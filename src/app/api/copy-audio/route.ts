@@ -1,31 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { SupabaseAudioStorage } from '@/lib/supabase-storage';
-
-// Service role client for admin operations
-const supabaseServiceRole = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getAuthFromRequest } from '@/lib/server-auth';
 
 export async function POST(request: NextRequest) {
   try {
     console.log('📁 Received audio copy request');
     
     // Get auth token from header
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      console.log('❌ No valid auth header found');
+    const auth = await getAuthFromRequest(request);
+    if (!auth) {
+      console.log('❌ No valid auth found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    const token = authHeader.slice(7);
-    const { data: { user }, error: authError } = await supabaseServiceRole.auth.getUser(token);
-    
-    if (authError || !user) {
-      console.log('❌ Auth error:', authError);
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { user } = auth;
     
     console.log('✅ User authenticated for audio copy:', user.id);
     
