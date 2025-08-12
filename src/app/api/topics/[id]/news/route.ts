@@ -112,7 +112,7 @@ export async function GET(
     let idx = 0;
     const articles: Array<{ id: string; title: string; url: string; published_at: string | null; feed: { id: string; name?: string | null } | null; summary?: string | null }> = [];
 
-    async function worker() {
+    const worker = async () => {
       while (true) {
         const i = idx++;
         if (i >= feedList.length) break;
@@ -128,7 +128,7 @@ export async function GET(
           articles.push({ id, title, url, published_at: published, feed: { id: f.id, name: f.name }, summary });
         }
       }
-    }
+    };
 
     const workers = Array.from({ length: Math.min(concurrency, Math.max(1, feedList.length)) }, () => worker());
     await Promise.all(workers);

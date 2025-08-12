@@ -103,7 +103,7 @@ async function isValidFeed(url: string): Promise<boolean> {
 async function filterValidFeeds(feeds: RssFeed[], concurrency = 6): Promise<RssFeed[]> {
   const results: RssFeed[] = [];
   let i = 0;
-  async function worker() {
+  const worker = async () => {
     while (true) {
       const idx = i++;
       if (idx >= feeds.length) break;
@@ -115,7 +115,7 @@ async function filterValidFeeds(feeds: RssFeed[], concurrency = 6): Promise<RssF
         // ignore
       }
     }
-  }
+  };
   const workers = Array.from({ length: Math.min(concurrency, Math.max(1, feeds.length)) }, () => worker());
   await Promise.all(workers);
   return results;
