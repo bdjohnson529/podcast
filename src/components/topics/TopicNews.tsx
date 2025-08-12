@@ -105,7 +105,8 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
       if (!res.ok) throw new Error((json as any)?.error || 'Failed to start synthesis');
 
       //console.log(json)
-      console.log("**************afterwards")
+      console.log("############## afterwards")
+      console.log(json);
 
       // Sync result: server returns the synthesis directly
       if ((json as any)?.summary && (json as any)?.sources) {
@@ -173,6 +174,7 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
             ))}
           </div>
         )}
+
 
         {data.summary.sections?.length > 0 && (
           <div className="space-y-4">

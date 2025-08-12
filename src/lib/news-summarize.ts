@@ -183,9 +183,14 @@ export async function synthesize(topicId: string, articles: ArticleSummary[]): P
 
   // Normalize and return a tolerant Synthesis object
   const normalized = coerceSynthesis(topicId, raw);
+
   // Final sanity: ensure required fields
   if (!normalized.summary || !normalized.sources) {
     throw new Error('Invalid Synthesis JSON from model');
   }
+
+  console.log("######## normalized")
+  console.log(normalized)
+
   return normalized;
 }
