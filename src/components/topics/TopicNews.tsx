@@ -13,21 +13,12 @@ export interface TopicArticle {
   summary?: string | null;
 }
 
-// Local copy of the synthesis result shape to avoid importing server-only modules client-side
+// Local copy of the synthesis result shape to match the actual server response
 interface SynthesisResult {
   topicId: string;
-  generatedAt: string;
-  summary: {
-    headline: string;
-    dek?: string;
-    paragraphs?: string[]; // optional top-level paragraphs in summary
-    sections: { heading?: string; paragraphs: string[] }[];
-    timeline?: { date?: string; event: string; sources: string[] }[];
-    keyTakeaways: string[];
-    risks?: string[];
-    openQuestions?: string[];
-  };
-  sources: { url: string; title: string }[];
+  headline: string;
+  article: string;
+  citations: { id: string; url: string }[];
 }
 
 export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
@@ -41,6 +32,9 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
   const [synthError, setSynthError] = useState<string | null>(null);
   const [synthResult, setSynthResult] = useState<SynthesisResult | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Track whether the POST to summarize is still awaiting a response
+  const [requestPending, setRequestPending] = useState(false);
 
   async function getToken(): Promise<string | undefined> {
     const supa = (await import('@/lib/supabase')).supabase;
@@ -87,8 +81,8 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
 
       setSynthError(null);
       setSynthResult(null);
-      setSynthStatus('queued');
       const token = await getToken();
+      setRequestPending(true);
       const res = await fetch(`/api/topics/${id}/news/summarize`, {
         method: 'POST',
         headers: {
@@ -97,6 +91,7 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
         },
         body: JSON.stringify({}),
       });
+      setRequestPending(false);
 
       console.log("#####line 101")
       console.log(res);
@@ -109,53 +104,14 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
       console.log("############## afterwards")
       console.log(json);
 
-      // Sync result: server returns the synthesis directly
-      if ((json as any)?.summary && (json as any)?.sources) {
+      // Check if server returned the synthesis directly
+      if ((json as any)?.headline && (json as any)?.article) {
         setSynthResult(json as any as SynthesisResult);
-        setSynthStatus('done');
         return;
       }
 
-      /*
-      // Legacy async: fallback to polling if a jobId is returned
-      const jobId = (json as any).jobId as string;
-      if (!jobId) {
-        throw new Error('Unexpected response from server');
-      }
-      setSynthJobId(jobId);
-      setSynthStatus('queued');
-      */
-      /*
-      if (pollRef.current) clearInterval(pollRef.current as any);
-      pollRef.current = setInterval(async () => {
-        try {
-          const pollRes = await fetch(`/api/topics/${id}/news/summarize?jobId=${encodeURIComponent(jobId)}`, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-            cache: 'no-store',
-          });
-          const pjson = await pollRes.json().catch(() => ({}));
-          if (!pollRes.ok) throw new Error((pjson as any)?.error || 'Polling failed');
-          const status = (pjson as any).status as typeof synthStatus;
-          setSynthStatus(status);
-          if (status === 'done') {
-            const result = (pjson as any).result?.result as SynthesisResult;
-            if (result) setSynthResult(result);
-            if (pollRef.current) { clearInterval(pollRef.current as any); pollRef.current = null; }
-          } else if (status === 'error') {
-            const errMsg = (pjson as any).error || 'Synthesis failed';
-            setSynthError(errMsg);
-            if (pollRef.current) { clearInterval(pollRef.current as any); pollRef.current = null; }
-          }
-        } catch (e: any) {
-          setSynthError(e?.message || 'Polling error');
-          setSynthStatus('error');
-          if (pollRef.current) { clearInterval(pollRef.current as any); pollRef.current = null; }
-        }
-      }, 1500);
-      */
-
     } catch (e: any) {
-      setSynthStatus('error');
+      setRequestPending(false);
       setSynthError(e?.message || 'Failed to start synthesis');
 
     }
@@ -165,19 +121,28 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
     return (
       <div className="bg-white rounded-xl border border-primary-200 p-6 space-y-4">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">{data.summary.headline}</h2>
-          {data.summary.dek && (
-            <p className="text-gray-700 mt-2">{data.summary.dek}</p>
-          )}
-          <p className="text-xs text-gray-500 mt-1">Generated {new Date(data.generatedAt || Date.now()).toLocaleString()}</p>
+          <h2 className="text-2xl font-semibold text-gray-900">{data.headline}</h2>
+          <p className="text-xs text-gray-500 mt-1">Generated {new Date().toLocaleString()}</p>
         </div>
 
-        {/* Optional top-level paragraphs */}
-        {Array.isArray(data.summary.paragraphs) && data.summary.paragraphs.length > 0 && (
-          <div className="space-y-2 mt-2">
-            {data.summary.paragraphs.map((p, i) => (
-              <p key={i} className="text-gray-800 leading-relaxed">{p}</p>
-            ))}
+        {/* Article content */}
+        <div className="space-y-2 mt-2">
+          <p className="text-gray-800 leading-relaxed">{data.article}</p>
+        </div>
+
+        {/* Citations */}
+        {data.citations && data.citations.length > 0 && (
+          <div className="border-t border-gray-200 pt-4">
+            <h3 className="text-sm font-medium text-gray-900 mb-2">Sources</h3>
+            <ul className="text-xs text-gray-600 space-y-1">
+              {data.citations.map((citation, i) => (
+                <li key={i}>
+                  • <a href={citation.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    {citation.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -186,8 +151,6 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
   }
 
   if (loading && !articles) return <LoadingScreen />;
-
-  const synthInFlight = synthStatus === 'queued' || synthStatus === 'running';
 
   return (
     <>
@@ -198,11 +161,10 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
         right={
           <button
             onClick={startSynthesis}
-            disabled={synthInFlight}
-            className={`px-3 py-1.5 rounded-md text-white text-sm ${synthInFlight ? 'bg-gray-400' : 'bg-primary-600 hover:bg-primary-700'}`}
+            className={`px-3 py-1.5 rounded-md text-white text-sm ${requestPending ? 'bg-gray-500' : 'bg-primary-600 hover:bg-primary-700'}`}
             title="Synthesize a summary from recent articles"
           >
-            {synthInFlight ? 'Synthesizing…' : 'Synthesize'}
+            Synthesize
           </button>
         }
       />
@@ -214,15 +176,15 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
         )}
 
         {/* Synthesis area */}
-        {(synthStatus !== 'idle') && (
+        {(requestPending || synthError || synthResult) && (
           <div className="pt-4 border-t border-gray-200 space-y-3">
-            {synthInFlight && (
+            {requestPending && (
               <div className="text-sm text-gray-600">Synthesizing summary from recent articles… this can take up to a minute.</div>
             )}
             {synthError && (
               <div className="text-sm text-red-600">{synthError}</div>
             )}
-            {synthStatus === 'done' && synthResult && (
+            {synthResult && (
               <SynthesizedArticle data={synthResult} />
             )}
           </div>

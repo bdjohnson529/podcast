@@ -91,71 +91,6 @@ function joinParagraphs(paragraphs: string[]): string {
   return paragraphs.map(p => p.trim()).filter(Boolean).join('\n\n');
 }
 
-export function coerceSynthesis(topicId: string, raw: any): SynthArticle {
-  const fallbackHeadline = 'Summary';
-
-  /*
-  // Already in target shape
-  if (raw && typeof raw === 'object' && isNonEmptyString(raw.headline) && isNonEmptyString(raw.article)) {
-    const citesIn = ensureArray<{ id?: string; url?: string }>(raw.citations);
-    const citations = citesIn
-      .map((c, i) => ({ id: isNonEmptyString(c?.id) ? c.id : `[${i + 1}]`, url: cleanUrl(c?.url) }))
-      .filter(c => isNonEmptyString(c.url));
-    return { topicId, headline: raw.headline.trim(), article: String(raw.article), citations };
-  }
-
-  // Coerce from legacy summary shape
-  const summaryIn = raw?.summary && typeof raw.summary === 'object' ? raw.summary : {};
-  const headline =
-    (isNonEmptyString(summaryIn.headline) && summaryIn.headline.trim()) ||
-    (isNonEmptyString(raw?.headline) && raw.headline.trim()) ||
-    fallbackHeadline;
-
-  const topParas = ensureArray<string>(summaryIn.paragraphs).map(String);
-  const sectionParas = ensureArray<any>(summaryIn.sections).flatMap((sec: any) =>
-    ensureArray<string>(sec?.paragraphs).map(String)
-  );
-  const paragraphs = [...topParas, ...sectionParas].map(s => s.trim()).filter(Boolean);
-
-  if (paragraphs.length === 0) {
-    if (isNonEmptyString(summaryIn.dek)) paragraphs.push(summaryIn.dek.trim());
-    const takeaways = ensureArray<string>(summaryIn.keyTakeaways).map(s => String(s).trim()).filter(Boolean);
-    if (takeaways.length > 0) {
-      paragraphs.push('Key Takeaways:');
-      paragraphs.push(...takeaways);
-    }
-  }
-  */
-
-  const headline = raw.title
-  const article = raw.article;
-  const citations = raw.citations;
-
-  /*
-  // Citations
-  let citations: { id: string; url: string }[] = [];
-  const citationsIn = ensureArray<any>(raw?.citations);
-  if (citationsIn.length > 0) {
-    citations = citationsIn
-      .map((c: any, i: number) => ({ id: isNonEmptyString(c?.id) ? c.id : `[${i + 1}]`, url: cleanUrl(c?.url) }))
-      .filter(c => isNonEmptyString(c.url));
-  } else {
-    const sources = ensureArray<any>(raw?.sources);
-    citations = sources
-      .map((s: any, i: number) => ({ id: `[${i + 1}]`, url: cleanUrl(s?.url) }))
-      .filter(c => isNonEmptyString(c.url));
-  }
-
-  const seen = new Set<string>();
-  const deduped: { id: string; url: string }[] = [];
-  for (const c of citations) {
-    if (!seen.has(c.url)) { seen.add(c.url); deduped.push(c); }
-  }
-  */
-
-  return { topicId, headline, article, citations: citations };
-}
-
 export async function synthesize(topicId: string, articles: ArticleSummary[]): Promise<SynthArticle> {
 
   console.log("************ in synthesize *****")
@@ -163,12 +98,33 @@ export async function synthesize(topicId: string, articles: ArticleSummary[]): P
   const prompt = [
     {
       role: 'system' as const,
-      content:
-        'You synthesize multiple news sources into a concise, accurate article with citations to the source URLs provided. Avoid speculation. Output JSON only.',
+      content: `You are an expert news editor who synthesizes multiple articles into a concise, accurate brief with citations.
+
+Instructions:
+- Read the provided article summaries and synthesize a brief, factual write-up.
+- Avoid speculation; prefer verifiable, sourced claims.
+- Write in clear, concise prose suitable for a quick-read briefing.
+- Include citations that reference the provided source URLs.
+- Prefer https URLs, deduplicate citations by URL, and order citations by first mention in the article body.
+
+Output Requirements (return plain JSON — no markdown, comments, or extra text):
+{
+  "topicId": string,            // required: echo the provided topicId
+  "headline": string,           // required: short, informative headline
+  "article": string,            // required: 3–8 concise paragraphs separated by \n\n
+  "citations": [                // required: sources used in the article
+    { "id": string, "url": string }  // id format like "[1]", "[2]"; url must be absolute http(s)
+  ]
+}
+
+- Output must be valid JSON (no trailing commas, comments, or extra fields).
+- Citations must be drawn from the provided article URLs; do not invent URLs.
+- If sources are insufficient to support a claim, omit the claim.
+- If nothing substantive can be synthesized, output an empty article and empty citations with a generic headline.`,
     },
     {
       role: 'user' as const,
-      content: JSON.stringify({ topicId, articles, schema: 'Synthesis' }),
+      content: JSON.stringify({ topicId, articles }),
     },
   ];
 
@@ -190,18 +146,26 @@ export async function synthesize(topicId: string, articles: ArticleSummary[]): P
     return { topicId, headline: 'Summary', article: 'Model returned non-JSON response', citations: [] };
   }
 
-  // Normalize to simplified shape
-  const normalized = coerceSynthesis(topicId, raw);
-
-  console.log("#### after coerceSynthesis")
+  console.log("#### raw response")
   console.log(raw)
-  console.log(normalized)
 
-  if (!normalized || !normalized.headline) {
+  // Validate the response has the required fields
+  if (!raw || typeof raw !== 'object' || !raw.headline || !raw.article) {
     throw new Error('Invalid synthesis shape');
   }
 
-  console.log("##### raw")
+  // Ensure citations is an array
+  const citations = Array.isArray(raw.citations) ? raw.citations : [];
 
-  return normalized;
+  const result = {
+    topicId,
+    headline: raw.headline,
+    article: raw.article,
+    citations
+  };
+
+  console.log("##### final result")
+  console.log(result)
+
+  return result;
 }
