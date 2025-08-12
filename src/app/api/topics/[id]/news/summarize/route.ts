@@ -82,5 +82,5 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
 // GET is not used in the sync PoC
 export async function GET() {
-  return NextResponse.json({ error: 'Use POST for synthesis (sync PoC)' }, { status: 405 });
+  return NextResponse.json({ error: 'Use POST for summarize endpoint' }, { status: 405 });
 }

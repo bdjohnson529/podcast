@@ -18,19 +18,11 @@ export type ArticleSummary = {
   uncertainties?: string[];
 };
 
-export type Synthesis = {
+export type SynthArticle = {
   topicId: string;
-  generatedAt: string;
-  summary: {
-    headline: string;
-    dek?: string;
-    sections: { heading?: string; paragraphs: string[] }[];
-    timeline?: { date?: string; event: string; sources: string[] }[];
-    keyTakeaways: string[];
-    risks?: string[];
-    openQuestions?: string[];
-  };
-  sources: { url: string; title: string }[];
+  headline: string;
+  article: string;
+  citations: { id: string; url: string }[];
 };
 
 function truncate(str: string, n = 8000) {
@@ -73,67 +65,98 @@ export async function summarizeArticle(a: ArticleInput): Promise<ArticleSummary>
   return json as ArticleSummary;
 }
 
-function coerceArray<T>(val: any): T[] {
-  if (Array.isArray(val)) return val as T[];
-  if (val == null) return [] as T[];
-  return [val] as T[];
+function isNonEmptyString(v: any): v is string {
+  return typeof v === 'string' && v.trim().length > 0;
 }
 
-function coerceSynthesis(topicId: string, raw: any): Synthesis {
-  const now = new Date().toISOString();
-  if (!raw || typeof raw !== 'object') {
-    return {
-      topicId,
-      generatedAt: now,
-      summary: { headline: 'Summary', sections: [], keyTakeaways: [] },
-      sources: [],
-    };
+function ensureArray<T = any>(v: any): T[] {
+  if (Array.isArray(v)) return v as T[];
+  if (v == null) return [] as T[];
+  return [v] as T[];
+}
+
+function cleanUrl(u: any): string {
+  try {
+    const s = String(u || '').trim();
+    if (!s) return '';
+    const url = new URL(s.startsWith('http') ? s : `https://${s}`);
+    if (url.protocol === 'http:' || url.protocol === 'https:') return url.toString();
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+function joinParagraphs(paragraphs: string[]): string {
+  return paragraphs.map(p => p.trim()).filter(Boolean).join('\n\n');
+}
+
+export function coerceSynthesis(topicId: string, raw: any): SynthArticle {
+  const fallbackHeadline = 'Summary';
+
+  /*
+  // Already in target shape
+  if (raw && typeof raw === 'object' && isNonEmptyString(raw.headline) && isNonEmptyString(raw.article)) {
+    const citesIn = ensureArray<{ id?: string; url?: string }>(raw.citations);
+    const citations = citesIn
+      .map((c, i) => ({ id: isNonEmptyString(c?.id) ? c.id : `[${i + 1}]`, url: cleanUrl(c?.url) }))
+      .filter(c => isNonEmptyString(c.url));
+    return { topicId, headline: raw.headline.trim(), article: String(raw.article), citations };
   }
 
-  // Some models might put fields at top-level instead of under summary
-  const topHeadline = typeof raw.headline === 'string' ? raw.headline : undefined;
-  const topDek = typeof raw.dek === 'string' ? raw.dek : undefined;
-  const topSections = Array.isArray(raw.sections) ? raw.sections : undefined;
-  const topKeyTakeaways = Array.isArray(raw.keyTakeaways) ? raw.keyTakeaways : undefined;
+  // Coerce from legacy summary shape
+  const summaryIn = raw?.summary && typeof raw.summary === 'object' ? raw.summary : {};
+  const headline =
+    (isNonEmptyString(summaryIn.headline) && summaryIn.headline.trim()) ||
+    (isNonEmptyString(raw?.headline) && raw.headline.trim()) ||
+    fallbackHeadline;
 
-  const summaryIn = raw.summary && typeof raw.summary === 'object' ? raw.summary : {};
-  const headline = summaryIn.headline || topHeadline || 'Summary';
-  const dek = summaryIn.dek || topDek;
-  const sections = Array.isArray(summaryIn.sections) ? summaryIn.sections : (topSections || []);
-  const timeline = Array.isArray(summaryIn.timeline) ? summaryIn.timeline : [];
-  const keyTakeaways = Array.isArray(summaryIn.keyTakeaways) ? summaryIn.keyTakeaways : (topKeyTakeaways || []);
-  const risks = Array.isArray(summaryIn.risks) ? summaryIn.risks : [];
-  const openQuestions = Array.isArray(summaryIn.openQuestions) ? summaryIn.openQuestions : [];
+  const topParas = ensureArray<string>(summaryIn.paragraphs).map(String);
+  const sectionParas = ensureArray<any>(summaryIn.sections).flatMap((sec: any) =>
+    ensureArray<string>(sec?.paragraphs).map(String)
+  );
+  const paragraphs = [...topParas, ...sectionParas].map(s => s.trim()).filter(Boolean);
 
-  const sourcesRaw = Array.isArray(raw.sources) ? raw.sources : [];
-  const sources = sourcesRaw
-    .map((s: any) => ({ url: String(s?.url || '').trim(), title: String(s?.title || '').trim() }))
-    .filter((s: any) => s.url);
+  if (paragraphs.length === 0) {
+    if (isNonEmptyString(summaryIn.dek)) paragraphs.push(summaryIn.dek.trim());
+    const takeaways = ensureArray<string>(summaryIn.keyTakeaways).map(s => String(s).trim()).filter(Boolean);
+    if (takeaways.length > 0) {
+      paragraphs.push('Key Takeaways:');
+      paragraphs.push(...takeaways);
+    }
+  }
+  */
 
-  return {
-    topicId,
-    generatedAt: typeof raw.generatedAt === 'string' ? raw.generatedAt : now,
-    summary: {
-      headline: String(headline),
-      dek: dek ? String(dek) : undefined,
-      sections: coerceArray<{ heading?: string; paragraphs: string[] }>(sections).map((sec: any) => ({
-        heading: typeof sec?.heading === 'string' ? sec.heading : undefined,
-        paragraphs: Array.isArray(sec?.paragraphs) ? sec.paragraphs.map((p: any) => String(p)) : [],
-      })),
-      timeline: coerceArray<{ date?: string; event: string; sources: string[] }>(timeline).map((t: any) => ({
-        date: typeof t?.date === 'string' ? t.date : undefined,
-        event: String(t?.event || ''),
-        sources: Array.isArray(t?.sources) ? t.sources.map((u: any) => String(u)) : [],
-      })),
-      keyTakeaways: coerceArray<string>(keyTakeaways).map((k: any) => String(k)),
-      risks: coerceArray<string>(risks).map((r: any) => String(r)),
-      openQuestions: coerceArray<string>(openQuestions).map((q: any) => String(q)),
-    },
-    sources,
-  };
+  const headline = raw.title
+  const article = raw.article;
+  const citations = raw.citations;
+
+  /*
+  // Citations
+  let citations: { id: string; url: string }[] = [];
+  const citationsIn = ensureArray<any>(raw?.citations);
+  if (citationsIn.length > 0) {
+    citations = citationsIn
+      .map((c: any, i: number) => ({ id: isNonEmptyString(c?.id) ? c.id : `[${i + 1}]`, url: cleanUrl(c?.url) }))
+      .filter(c => isNonEmptyString(c.url));
+  } else {
+    const sources = ensureArray<any>(raw?.sources);
+    citations = sources
+      .map((s: any, i: number) => ({ id: `[${i + 1}]`, url: cleanUrl(s?.url) }))
+      .filter(c => isNonEmptyString(c.url));
+  }
+
+  const seen = new Set<string>();
+  const deduped: { id: string; url: string }[] = [];
+  for (const c of citations) {
+    if (!seen.has(c.url)) { seen.add(c.url); deduped.push(c); }
+  }
+  */
+
+  return { topicId, headline, article, citations: citations };
 }
 
-export async function synthesize(topicId: string, articles: ArticleSummary[]): Promise<Synthesis> {
+export async function synthesize(topicId: string, articles: ArticleSummary[]): Promise<SynthArticle> {
 
   console.log("************ in synthesize *****")
 
@@ -164,33 +187,21 @@ export async function synthesize(topicId: string, articles: ArticleSummary[]): P
   try {
     raw = JSON.parse(content);
   } catch (e) {
-    // Return a minimal shell with the parsing error recorded in openQuestions
-    return {
-      topicId,
-      generatedAt: new Date().toISOString(),
-      summary: {
-        headline: 'Summary',
-        sections: [],
-        keyTakeaways: [],
-        openQuestions: ['Model returned non-JSON response'],
-      },
-      sources: [],
-    };
+    return { topicId, headline: 'Summary', article: 'Model returned non-JSON response', citations: [] };
   }
 
-  console.log("************** before raw")
-  console.log(raw);
-
-  // Normalize and return a tolerant Synthesis object
+  // Normalize to simplified shape
   const normalized = coerceSynthesis(topicId, raw);
 
-  // Final sanity: ensure required fields
-  if (!normalized.summary || !normalized.sources) {
-    throw new Error('Invalid Synthesis JSON from model');
+  console.log("#### after coerceSynthesis")
+  console.log(raw)
+  console.log(normalized)
+
+  if (!normalized || !normalized.headline) {
+    throw new Error('Invalid synthesis shape');
   }
 
-  console.log("######## normalized")
-  console.log(normalized)
+  console.log("##### raw")
 
   return normalized;
 }

@@ -98,6 +98,7 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
         body: JSON.stringify({}),
       });
 
+      console.log("#####line 101")
       console.log(res);
 
       // cast as json
@@ -115,6 +116,7 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
         return;
       }
 
+      /*
       // Legacy async: fallback to polling if a jobId is returned
       const jobId = (json as any).jobId as string;
       if (!jobId) {
@@ -122,7 +124,8 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
       }
       setSynthJobId(jobId);
       setSynthStatus('queued');
-
+      */
+      /*
       if (pollRef.current) clearInterval(pollRef.current as any);
       pollRef.current = setInterval(async () => {
         try {
@@ -149,9 +152,12 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
           if (pollRef.current) { clearInterval(pollRef.current as any); pollRef.current = null; }
         }
       }, 1500);
+      */
+
     } catch (e: any) {
       setSynthStatus('error');
       setSynthError(e?.message || 'Failed to start synthesis');
+
     }
   }
 
@@ -175,44 +181,6 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
           </div>
         )}
 
-
-        {data.summary.sections?.length > 0 && (
-          <div className="space-y-4">
-            {data.summary.sections.map((s, i) => (
-              <section key={i}>
-                {s.heading && <h3 className="text-lg font-medium text-gray-900">{s.heading}</h3>}
-                {s.paragraphs?.map((p, j) => (
-                  <p key={j} className="text-gray-800 leading-relaxed mt-2">{p}</p>
-                ))}
-              </section>
-            ))}
-          </div>
-        )}
-        {data.summary.keyTakeaways?.length > 0 && (
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Key takeaways</h3>
-            <ul className="list-disc pl-6 text-gray-800 mt-2 space-y-1">
-              {data.summary.keyTakeaways.map((k, i) => (
-                <li key={i}>{k}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {data.sources?.length > 0 && (
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Sources</h3>
-            <ul className="list-disc pl-6 text-gray-700 mt-2 space-y-1">
-              {data.sources.map((s, i) => (
-                <li key={i}>
-                  <a href={s.url} target="_blank" rel="noreferrer" className="text-primary-700 hover:underline">
-                    {s.title || s.url}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     );
   }
