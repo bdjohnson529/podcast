@@ -17,13 +17,40 @@ interface Props {
 }
 
 export function TopicView({ topics, onSelect, selectedId, onCreate }: Props) {
+  function CreateTopicButton() {
+    return (
+      <button
+        type="button"
+        onClick={() => onCreate?.()}
+        className="w-full block text-left p-6 transition-colors hover:bg-gray-50 rounded-xl border border-primary-100"
+        aria-label="Create a new topic"
+        title="Create a new topic"
+      >
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-primary-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+            </svg>
+            <h3 className="text-lg font-semibold text-primary-700 hover:underline">
+              Create new topic
+            </h3>
+          </div>
+          <div className="ml-6 shrink-0 text-sm text-gray-500">
+            {/* Placeholder for alignment */}
+          </div>
+        </div>
+      </button>
+    );
+  }
+
   if (!topics.length) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="text-center">
+        <div className="text-center mb-6">
           <h3 className="text-lg font-semibold text-gray-900">No topics yet</h3>
           <p className="text-gray-600 mt-1">Create your first topic to organize feeds.</p>
         </div>
+        <CreateTopicButton />
       </div>
     );
   }
@@ -58,27 +85,7 @@ export function TopicView({ topics, onSelect, selectedId, onCreate }: Props) {
           );
         })}
         <li className="p-0">
-          <button
-            type="button"
-            onClick={() => onCreate?.()}
-            className="w-full text-left p-6 transition-colors hover:bg-gray-50"
-            aria-label="Create a new topic"
-            title="Create a new topic"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <svg className="w-5 h-5 text-primary-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
-                </svg>
-                <h3 className="text-lg font-semibold text-primary-700 hover:underline">
-                  Create new topic
-                </h3>
-              </div>
-              <div className="ml-6 shrink-0 text-sm text-gray-500">
-                {/* Placeholder for alignment */}
-              </div>
-            </div>
-          </button>
+          <CreateTopicButton />
         </li>
       </ul>
     </div>
