@@ -20,6 +20,7 @@ interface SynthesisResult {
   summary: {
     headline: string;
     dek?: string;
+    paragraphs?: string[]; // optional top-level paragraphs in summary
     sections: { heading?: string; paragraphs: string[] }[];
     timeline?: { date?: string; event: string; sources: string[] }[];
     keyTakeaways: string[];
@@ -82,7 +83,7 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
 
   async function startSynthesis() {
     try {
-      console.log("****** synthesizing ")
+      console.log("*** startSynthesis *** ")
 
       setSynthError(null);
       setSynthResult(null);
@@ -96,14 +97,31 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
         },
         body: JSON.stringify({}),
       });
+
+      console.log(res);
+
+      // cast as json
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((json as any)?.error || 'Failed to start synthesis');
+
+      //console.log(json)
+      console.log("**************afterwards")
+
+      // Sync result: server returns the synthesis directly
+      if ((json as any)?.summary && (json as any)?.sources) {
+        setSynthResult(json as any as SynthesisResult);
+        setSynthStatus('done');
+        return;
+      }
+
+      // Legacy async: fallback to polling if a jobId is returned
       const jobId = (json as any).jobId as string;
+      if (!jobId) {
+        throw new Error('Unexpected response from server');
+      }
       setSynthJobId(jobId);
       setSynthStatus('queued');
 
-
-      // Start polling
       if (pollRef.current) clearInterval(pollRef.current as any);
       pollRef.current = setInterval(async () => {
         try {
@@ -146,6 +164,16 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
           )}
           <p className="text-xs text-gray-500 mt-1">Generated {new Date(data.generatedAt || Date.now()).toLocaleString()}</p>
         </div>
+
+        {/* Optional top-level paragraphs */}
+        {Array.isArray(data.summary.paragraphs) && data.summary.paragraphs.length > 0 && (
+          <div className="space-y-2 mt-2">
+            {data.summary.paragraphs.map((p, i) => (
+              <p key={i} className="text-gray-800 leading-relaxed">{p}</p>
+            ))}
+          </div>
+        )}
+
         {data.summary.sections?.length > 0 && (
           <div className="space-y-4">
             {data.summary.sections.map((s, i) => (
@@ -168,6 +196,7 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
             </ul>
           </div>
         )}
+
         {data.sources?.length > 0 && (
           <div>
             <h3 className="text-lg font-medium text-gray-900">Sources</h3>
@@ -214,6 +243,21 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
           <div className="text-red-600 text-sm">{error}</div>
         )}
 
+        {/* Synthesis area */}
+        {(synthStatus !== 'idle') && (
+          <div className="pt-4 border-t border-gray-200 space-y-3">
+            {synthInFlight && (
+              <div className="text-sm text-gray-600">Synthesizing summary from recent articles… this can take up to a minute.</div>
+            )}
+            {synthError && (
+              <div className="text-sm text-red-600">{synthError}</div>
+            )}
+            {synthStatus === 'done' && synthResult && (
+              <SynthesizedArticle data={synthResult} />
+            )}
+          </div>
+        )}
+
         {(!articles || articles.length === 0) ? (
           <p className="text-gray-600">No recent articles found.</p>
         ) : (
@@ -237,21 +281,6 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
               </li>
             ))}
           </ul>
-        )}
-
-        {/* Synthesis area */}
-        {(synthStatus !== 'idle') && (
-          <div className="pt-4 border-t border-gray-200 space-y-3">
-            {synthInFlight && (
-              <div className="text-sm text-gray-600">Synthesizing summary from recent articles… this can take up to a minute.</div>
-            )}
-            {synthError && (
-              <div className="text-sm text-red-600">{synthError}</div>
-            )}
-            {synthStatus === 'done' && synthResult && (
-              <SynthesizedArticle data={synthResult} />
-            )}
-          </div>
         )}
       </div>
     </>
