@@ -56,17 +56,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       })
     ).then((arr) => arr.filter(Boolean) as any);
 
-    //console.log(perArticle);
-
     if (perArticle.length === 0) {
       return NextResponse.json({ error: 'No summaries could be generated' }, { status: 502 });
     }
 
     // Reduce step
     const result = await synthesize(topicId, perArticle);
-
-    console.log("************** returning")
-    console.log(result)
 
     return NextResponse.json(result, { status: 200 });
 

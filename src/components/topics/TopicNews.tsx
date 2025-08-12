@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { TopicHeader } from './Header';
 
@@ -27,13 +27,8 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
   const [loading, setLoading] = useState(false);
 
   // Synthesis state
-  const [synthJobId, setSynthJobId] = useState<string | null>(null);
-  const [synthStatus, setSynthStatus] = useState<'idle' | 'queued' | 'running' | 'done' | 'error'>('idle');
   const [synthError, setSynthError] = useState<string | null>(null);
   const [synthResult, setSynthResult] = useState<SynthesisResult | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Track whether the POST to summarize is still awaiting a response
   const [requestPending, setRequestPending] = useState(false);
 
   async function getToken(): Promise<string | undefined> {
@@ -66,23 +61,13 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
     return () => { cancelled = true; };
   }, [id]);
 
-  useEffect(() => {
-    return () => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current as any);
-        pollRef.current = null;
-      }
-    };
-  }, []);
-
   async function startSynthesis() {
     try {
-      console.log("*** startSynthesis *** ")
-
       setSynthError(null);
       setSynthResult(null);
       const token = await getToken();
       setRequestPending(true);
+      
       const res = await fetch(`/api/topics/${id}/news/summarize`, {
         method: 'POST',
         headers: {
@@ -93,16 +78,8 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
       });
       setRequestPending(false);
 
-      console.log("#####line 101")
-      console.log(res);
-
-      // cast as json
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((json as any)?.error || 'Failed to start synthesis');
-
-      //console.log(json)
-      console.log("############## afterwards")
-      console.log(json);
 
       // Check if server returned the synthesis directly
       if ((json as any)?.headline && (json as any)?.article) {
@@ -113,7 +90,6 @@ export function TopicNews({ id, onBack }: { id: string; onBack?: () => void }) {
     } catch (e: any) {
       setRequestPending(false);
       setSynthError(e?.message || 'Failed to start synthesis');
-
     }
   }
 

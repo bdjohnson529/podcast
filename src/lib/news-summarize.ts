@@ -32,8 +32,6 @@ function truncate(str: string, n = 8000) {
 
 export async function summarizeArticle(a: ArticleInput): Promise<ArticleSummary> {
 
-  console.log("*** summarizeArticle ***")
-
   const prompt = [
     {
       role: 'system' as const,
@@ -93,8 +91,6 @@ function joinParagraphs(paragraphs: string[]): string {
 
 export async function synthesize(topicId: string, articles: ArticleSummary[]): Promise<SynthArticle> {
 
-  console.log("************ in synthesize *****")
-
   const prompt = [
     {
       role: 'system' as const,
@@ -134,9 +130,6 @@ Output Requirements (return plain JSON — no markdown, comments, or extra text)
     response_format: { type: 'json_object' },
   });
 
-  console.log("************** response")
-  console.log(resp)
-
   const content = resp.choices?.[0]?.message?.content || '';
   let raw: any;
 
@@ -145,9 +138,6 @@ Output Requirements (return plain JSON — no markdown, comments, or extra text)
   } catch (e) {
     return { topicId, headline: 'Summary', article: 'Model returned non-JSON response', citations: [] };
   }
-
-  console.log("#### raw response")
-  console.log(raw)
 
   // Validate the response has the required fields
   if (!raw || typeof raw !== 'object' || !raw.headline || !raw.article) {
@@ -163,9 +153,6 @@ Output Requirements (return plain JSON — no markdown, comments, or extra text)
     article: raw.article,
     citations
   };
-
-  console.log("##### final result")
-  console.log(result)
 
   return result;
 }
