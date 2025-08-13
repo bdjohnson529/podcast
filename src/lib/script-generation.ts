@@ -1,4 +1,5 @@
 import { PodcastInput, PodcastScript, DialogueLine } from '@/types';
+import { ChatOpenAI } from "@langchain/openai";
 
 class ScriptGenerationService {
   private apiKey: string | null = null;
@@ -114,6 +115,33 @@ User Context:
 - Target duration: ${input.duration} minute${input.duration !== 1 ? 's' : ''}
 
 Make sure CHRIS and JESSICA have distinct voices and naturally build on each other's points. Include practical examples and actionable insights for learning. Adjust the depth and number of examples based on the target duration - shorter episodes should focus on core concepts, while longer episodes can explore more examples and nuances.`;
+  }
+
+  async testLangChain(input: String) {
+    const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+    const reply = await model.invoke(input)
+
+    return reply
+  }
+
+  async testGenerateScript(input: String) {
+    const model = new ChatOpenAI({ model: "gpt-4o-mini" });
+
+    const systemPrompt = this.getSystemPrompt("novice", 8);
+    const userPrompt = this.getUserPrompt(input);
+
+    const reply = await model.invoke([
+      {
+        role: "system",
+        content: systemPrompt,
+      },
+      {
+        role: "user",
+        content: "Generate an educational podcast script about: " + input,
+      },
+    ])
+
+    return reply
   }
 
   async generateScript(input: PodcastInput): Promise<PodcastScript> {
