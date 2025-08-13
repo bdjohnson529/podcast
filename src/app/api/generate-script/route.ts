@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import '@/lib/traceloop'; // Initialize Traceloop
 import { scriptGenerationService } from '@/lib/script-generation';
 import { supabase } from '@/lib/supabase';
 import { PodcastInput } from '@/types';

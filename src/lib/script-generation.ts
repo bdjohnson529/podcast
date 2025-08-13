@@ -1,5 +1,6 @@
 import { PodcastInput, PodcastScript, DialogueLine } from '@/types';
 import { ChatOpenAI } from "@langchain/openai";
+import * as Traceloop from "@traceloop/node-server-sdk";
 
 class ScriptGenerationService {
   private apiKey: string | null = null;
@@ -119,16 +120,22 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
 
   async testLangChain(input: String) {
     const model = new ChatOpenAI({ model: "gpt-4o-mini" });
-    const reply = await model.invoke(input)
+    const reply = await model.invoke("hello world")
 
     return reply
   }
 
   async testGenerateScript(input: String) {
+
+    Traceloop.initialize({ 
+      disableBatch: true, 
+      apiKey: "tl_1ec2922bf92345c798beb806c6aeba00" 
+    })
+
     const model = new ChatOpenAI({ model: "gpt-4o-mini" });
 
     const systemPrompt = this.getSystemPrompt("novice", 8);
-    const userPrompt = this.getUserPrompt(input);
+   //const userPrompt = this.getUserPrompt(input);
 
     const reply = await model.invoke([
       {
@@ -137,7 +144,7 @@ Make sure CHRIS and JESSICA have distinct voices and naturally build on each oth
       },
       {
         role: "user",
-        content: "Generate an educational podcast script about: " + input,
+        content: "Generate an educational podcast script about: hello world",
       },
     ])
 
